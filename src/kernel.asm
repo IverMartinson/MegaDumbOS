@@ -1,25 +1,20 @@
-org 0x1000
-bits 32
-
-.loop:
-    lodsb
-    or al, al
-    jz .done
-
-    mov [edi], al
-    inc edi
-
-    mov [edi], bl
-    inc edi
-    jmp .loop
-
-.done:
-    ret
-
-mov bl, 6
-
-mov edi, 0xb8000 + 320
-mov esi, kernelloadedMsg
-call .loop
-
-kernelloadedMsg db "Kernel loaded!"
+bits 32  ;nasm directive - 32 bit
+        section .text
+            ;multiboot spec
+            align 4
+            dd 0x1BADB002 ;magic
+            dd 0x00 ;flags
+            dd - (0x1BADB002 + 0x00) ;checksum
+         
+        global start ;to set symbols from source code as global 
+        extern kernelMain ;kernalMain is the function in C file
+         
+        start:
+            cli ;clear interrupts-- to diable interrupts
+            mov esp, stack_space ;set stack pointer
+            call kernelMain ;calls the main kernel function from c file
+            hlt ;halts the CPU
+         
+        section .bss
+        resb 8192 ;8KB memory reserved for the stack
+        stack_space:  
