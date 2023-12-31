@@ -51,6 +51,4 @@ char readChar() {
 void kernelMain() {
     clear();
     print("Welcome to MegaDumbOS: the operating system of the future");
-    print("print test");
-    print("Hello, World!");
 }
