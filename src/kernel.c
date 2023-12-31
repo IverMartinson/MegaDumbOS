@@ -50,16 +50,7 @@ char readChar() {
 
 void kernelMain() {
     clear();
-    print("Welcome to (os name here): the operating system of the future");
+    print("Welcome to MegaDumbOS: the operating system of the future");
     print("print test");
     print("Hello, World!");
-
-    print("Enter a character: ");
-    char userInput = readChar();
-
-    // Print the entered character
-    print("You entered: ");
-    print(&userInput);
-
-    // Additional code goes here
 }
