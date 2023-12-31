@@ -36,18 +36,6 @@ void clear(){
     return;
 }
 
-char readChar() {
-    char input;
-    asm volatile(
-        "sti\n"              // Disable interrupts
-        "int $0x16\n"        // Invoke interrupt 0x16 (BIOS keyboard input)
-        "cli\n"              // Enable interrupts
-        : "=a" (input)
-        : "a" (0x00)
-    );
-    return input;
-}
-
 void kernelMain() {
     clear();
     print("Welcome to MegaDumbOS: the operating system of the future");
