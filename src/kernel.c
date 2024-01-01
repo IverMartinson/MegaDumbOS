@@ -1,3 +1,5 @@
+typedef unsigned int size_t;
+
 char *videoMemPtr = (char*)0xb8000;
 int ln = 0;
 int cp = 10;
@@ -135,14 +137,35 @@ char readKey() {
     return '\0';
 }
 
+char* cstrncpy(char* dest, const char* src, size_t n) {
+    char* original_dest = dest;
+
+    // Copy up to n characters from src to dest
+    while (n > 0 && *src != '\0') {
+        *dest = *src;
+        dest++;
+        src++;
+        n--;
+    }
+
+    // Pad with null bytes if necessary
+    while (n > 0) {
+        *dest = '\0';
+        dest++;
+        n--;
+    }
+
+    return original_dest;
+}
+
 void kernelMain() {
     clearScreen();
     print("Welcome to MegaDumbOS: the Operating System of the Future");
     ln += 3;
     cp = 0;
 
-    char currentToken[10] = {'\0'};
-    char* command[10] = {};
+    char currentToken[20 + 1] = {'\0'};
+    char command[10][20 + 1] = {};
     int token = -1;
 
     // cmd prompt
@@ -153,7 +176,11 @@ void kernelMain() {
 
         if (key == '\n') {
             token++;
-            command[token] = currentToken;
+            
+            cstrncpy(command[token], currentToken, 20);
+            command[token][20] = '\0';
+            currentToken[0] = '\0';
+
             print("\n ");
             print(command[0]);
             print("\n ");
@@ -162,7 +189,13 @@ void kernelMain() {
             print(command[2]);
             print("\n ");
             print(command[3]);
-            token = 0;
+
+            // reset command
+            for (int i = 0; i <= token; i++) {
+                command[i][0] = '\0';
+            }
+
+            token = -1;
             print("\n=> ");
         }
 
@@ -183,7 +216,9 @@ void kernelMain() {
 
         if (key == ' ') {
             token++;
-            command[token] = currentToken;
+            
+            cstrncpy(command[token], currentToken, 20);
+            command[token][20] = '\0';
 
             currentToken[0] = '\0';  // Reset the currentToken
         }
