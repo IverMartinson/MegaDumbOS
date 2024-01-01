@@ -211,7 +211,18 @@ void checkCommand(char command[10][21]){
         shouldShutdown = 1;
         print("[INFO] Shutting down...");
     } else{
-        print("[ERROR] Command not found. Try 'help' for a list of commands");
+        print("[ERROR] Command '");
+        int numRows = 0;
+
+        // Iterate through the rows until an empty row is found
+        while (numRows < 10 && command[numRows][0] != '\0') {
+           numRows++;
+        }
+
+        for (int j=0; j<numRows; j++) {
+            print(command[j]);           
+        }
+        print("' not found. Try 'help' for a list of commands");
     }
     return;
 }
@@ -224,8 +235,9 @@ void kernelMain() {
     cp = 0;
 
     char currentToken[21] = {'\0'};
+    char currentCommand[100] = {'\0'};
     char command[10][21] = {};
-    int token = -1;
+    int token = 0;
     int canDelete = 0;
 
     // Command prompt
@@ -235,15 +247,40 @@ void kernelMain() {
         char key = readKey();
 
         if (key == '\n'){
-            token++;
-            
+            int i = 0;
+            while (currentCommand[i] != '\0') {
+                i++;
+            }
+
+            for (int j = 0; j < i; j++) {
+                int k = 0;
+                while (currentToken[k] != '\0') {
+                    k++;
+                }
+                
+                if (currentCommand[j] == ' ') {
+                    currentToken[k] = currentCommand[j];
+                    currentToken[k + 1] = '\0';
+                    cstrncpy(command[token], currentToken, 20);
+                    currentToken[0] = '\0';
+                    token++;
+                    continue;
+                }
+
+                currentToken[k] = currentCommand[j];
+                currentToken[k + 1] = '\0';
+            }
+
             cstrncpy(command[token], currentToken, 20);
-            command[token][20] = '\0';
-            currentToken[0] = '\0';
 
             print("\n ");
 
             checkCommand(command);
+
+            token = 0;
+            currentToken[0] = '\0';
+            // Corrected the array declaration to reset currentCommand
+            currentCommand[0] = '\0';
 
             if (shouldShutdown == 1) return;
 
@@ -251,7 +288,6 @@ void kernelMain() {
                 command[i][0] = '\0';
             }
 
-            token = -1;
             canDelete = 0;
             print("\n=> ");
         }
@@ -260,11 +296,11 @@ void kernelMain() {
             if (canDelete <= 0) continue;
             
             int i = 0;
-            while (currentToken[i] != '\0') {
+            while (currentCommand[i] != '\0') {
                 i++;
             }
 
-            currentToken[i - 1] = '\0';
+            currentCommand[i - 1] = '\0';
 
             cp--;
 
@@ -278,25 +314,16 @@ void kernelMain() {
 
         else if (key != '\0'){
             int i = 0;
-            while (currentToken[i] != '\0') {
+            while (currentCommand[i] != '\0') {
                 i++;
             }
 
-            currentToken[i] = key;
-            currentToken[i + 1] = '\0';
+            currentCommand[i] = key;
+            currentCommand[i + 1] = '\0';
 
             canDelete++;
 
             printChar(key);
-        }
-
-        if (key == ' '){
-            token++;
-            
-            cstrncpy(command[token], currentToken, 20);
-            command[token][20] = '\0';
-
-            currentToken[0] = '\0';
         }
     }
 
