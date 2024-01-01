@@ -1,4 +1,4 @@
-char *videomemptr = (char*)0xb8000;
+char *videoMemPtr = (char*)0xb8000;
 int ln = 0;
 int cp = 10;
 
@@ -50,107 +50,142 @@ char* itoa(int num, char* str, int base) {
     return str;
 }
 
-void print(char* data) {
-    unsigned int i = 0;
-    unsigned int j = 0;
-
-    // Loop to write the string to the video memory - each character with 0x02 attribute (green)
-    while (data[j] != '\0' && i < 80 * 2) {
-        videomemptr[i + 160 * ln + cp * 2] = data[j];
-        videomemptr[i + 160 * ln + 1] = 0x02;
-        ++j;
-        i = i + 2;
+void printChar(char data) {
+    if (data == '\n') {
+        ln++;
+        cp = 0;
     }
 
-    ln++;
+    videoMemPtr[160 * ln + cp * 2] = data;
+    videoMemPtr[160 * ln + cp * 2 + 1] = 0x02;
+    cp += 1;
 
     return;
 }
 
-void clear() {
+void print(char* data) {
+    unsigned int j = 0;
+
+    // Loop to write the string to the video memory - each character with 0x02 attribute (green)
+    while (data[j] != '\0') {
+        if (data[j] == '\n') {
+            ln++;
+            cp = -1;
+        }
+
+        else {
+            videoMemPtr[160 * ln + cp * 2] = data[j];
+            videoMemPtr[160 * ln + cp * 2 + 1] = 0x02;
+        }
+
+        ++j;
+        cp += 1;
+    }
+
+    return;
+}
+
+void printInt(int data) {
+    char buffer[20];  // Assuming the maximum number of digits in the number won't exceed 20
+
+    // Convert the number to a string
+    itoa(data, buffer, 10);
+
+    print(buffer);
+}
+
+void clearScreen() {
     unsigned int i = 0;
 
     // Clear screen
     for (i = 0; i < 80 * 25 * 2; i += 2) {
-        videomemptr[i] = ' ';
-        videomemptr[i + 1] = 0x02;
+        videoMemPtr[i] = ' ';
+        videoMemPtr[i + 1] = 0x02;
     }
 
     return;
 }
 
 char readKey() {
-    char keybuffer;
+    char keyBuffer;
 
     asm volatile (
-        "wait_for_key:"
-        "inb $0x64, %%al;"     // Read status register from keyboard controller
-        "testb $0x01, %%al;"   // Check if the output buffer is full
-        "jz wait_for_key;"     // If not, keep waiting
-        "inb $0x60, %%al;"     // Read key code from data buffer
-        "movb %%al, %0;"      // Store the key code in keybuffer
-        : "=r" (keybuffer)
+        "waitForKey:\n"
+        "inb $0x64, %0\n"   // Read status register from the keyboard controller
+        "testb $0x01, %0\n" // Check if the output buffer is full
+        "jz waitForKey\n" // If not, keep waiting
+        "inb $0x60, %0\n"   // Read the key code from the data buffer
+        : "=a" (keyBuffer)
+        : // no input operands
+        : // no clobbered registers
     );
-    
-    if(keybuffer==2)return '1';
-    if(keybuffer==3)return '2';
-    if(keybuffer==4)return '3';
-    if(keybuffer==5)return '4';
-    if(keybuffer==6)return '5';
-    if(keybuffer==7)return '6';
-    if(keybuffer==8)return '7';
-    if(keybuffer==9)return '8';
-    if(keybuffer==10)return '9';
-    if(keybuffer==11)return '0';
-    if(keybuffer==16)return 'q';
-    if(keybuffer==17)return 'w';
-    if(keybuffer==18)return 'e';
-    if(keybuffer==19)return 'r';
-    if(keybuffer==20)return 't';
-    if(keybuffer==21)return 'y';
-    if(keybuffer==22)return 'u';
-    if(keybuffer==23)return 'i';
-    if(keybuffer==24)return 'o';
-    if(keybuffer==25)return 'p';
-    if(keybuffer==26)return '[';
-    if(keybuffer==27)return ']';
-    if(keybuffer==43)return '\\';
-    if(keybuffer==30)return 'a';
-    if(keybuffer==31)return 's';
-    if(keybuffer==32)return 'd';
-    if(keybuffer==33)return 'f';
-    if(keybuffer==34)return 'g';
-    if(keybuffer==35)return 'h';
-    if(keybuffer==36)return 'j';
-    if(keybuffer==37)return 'k';
-    if(keybuffer==38)return 'l';
-    if(keybuffer==39)return ';';
-    if(keybuffer==40)return '\'';
-    if(keybuffer==44)return 'z';
-    if(keybuffer==45)return 'x';
-    if(keybuffer==46)return 'c';
-    if(keybuffer==47)return 'v';
-    if(keybuffer==48)return 'b';
-    if(keybuffer==49)return 'n';
-    if(keybuffer==50)return 'm';
-    if(keybuffer==51)return ',';
-    if(keybuffer==52)return '.';
-    if(keybuffer==53)return '/';
-    else return '\0';
+
+    // Check if the key is a valid ASCII character
+    if (keyBuffer >= 2 && keyBuffer <= 57) {
+        char keyMap[] = {
+            '\0', '\0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
+            '\0', '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
+            '\n', '\0', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',
+            '\0', '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '\0', '\0', '\0', ' '
+        };
+
+        return keyMap[keyBuffer];
+    }
+
+    return '\0';
 }
 
 void kernelMain() {
-    clear();
+    clearScreen();
     print("Welcome to MegaDumbOS: the Operating System of the Future");
     ln += 3;
     cp = 0;
 
+    char currentToken[10] = {'\0'};
+    char* command[10] = {};
+    int token = -1;
+
+    // cmd prompt
+    print("=> ");
+
     while (1) {
         char key = readKey();
-        if (key != '\0'){
-            print(&key);  // Print the pressed key
-            ln -= 1;
-            cp++;
+
+        if (key == '\n') {
+            token++;
+            command[token] = currentToken;
+            print("\n ");
+            print(command[0]);
+            print("\n ");
+            print(command[1]);
+            print("\n ");
+            print(command[2]);
+            print("\n ");
+            print(command[3]);
+            token = 0;
+            print("\n=> ");
+        }
+
+        else if (key != '\0') {
+            int i = 0;
+            while (currentToken[i] != '\0') {
+                i++;
+            }
+
+            // Add the new character to the end
+            currentToken[i] = key;
+
+            // Add the null terminator
+            currentToken[i + 1] = '\0';
+
+            printChar(key);
+        }
+
+        if (key == ' ') {
+            token++;
+            command[token] = currentToken;
+
+            currentToken[0] = '\0';  // Reset the currentToken
         }
     }
 }
