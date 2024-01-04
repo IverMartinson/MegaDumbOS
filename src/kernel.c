@@ -1,7 +1,7 @@
-#define NUMBER_OF_COMMANDS 2
+#define NUMBER_OF_COMMANDS 3
 
 // List of available commands
-char* listOfCommands[NUMBER_OF_COMMANDS] = {"help\0", "shutdown\0"};
+char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]\0", "shutdown [shuts down computer]\0", "clear [clears screen]\0"};
 
 // Define size_t as an alias for unsigned int
 typedef unsigned int size_t;
@@ -11,7 +11,7 @@ char *videoMemPtr = (char*)0xb8000;
 
 // Current line and column positions
 int ln = 0;
-int cp = 10;
+int cp = 0;
 
 // Define uint16_t and uint8_t as aliases for unsigned short and unsigned char
 typedef unsigned short uint16_t;
@@ -138,6 +138,9 @@ void clearScreen() {
         videoMemPtr[i + 1] = 0x02;
     }
 
+    ln = 0;
+    cp = 0;
+
     return;
 }
 
@@ -208,16 +211,25 @@ void shutdown(){
 
 // Function to check and execute commands
 void checkCommand(char command[10][21]){
+    // help command
     if (cstrcmp(command[0], "help") == 0){
         for (int j = 0; j < NUMBER_OF_COMMANDS; j++) {
             print(listOfCommands[j]);
             if (j < NUMBER_OF_COMMANDS - 1) print("\n ");
         }
     }
+    // shutdown command
     else if (cstrcmp(command[0], "shutdown") == 0){
         print("[INFO] Shutting down...");
 
         shutdown();
+    
+    } 
+    // clear screen commnad
+    else if (cstrcmp(command[0], "clear") == 0){
+        clearScreen();
+        
+        ln = -1;
     
     } else{
         print("[ERROR] Command '");
@@ -239,9 +251,13 @@ void checkCommand(char command[10][21]){
 // Main kernel function
 void kernelMain() {
     clearScreen();
-    print("Welcome to MegaDumbOS: the Operating System of the Future");
+
+    ln = 1;
+    cp = 11;
+
+    print("Welcome to MegaDumbOS: the Operating System of the Future!\n");
+    
     ln += 3;
-    cp = 0;
 
     char currentToken[21] = {'\0'};
     char currentCommand[100] = {'\0'};
