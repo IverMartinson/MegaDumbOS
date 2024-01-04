@@ -3,9 +3,6 @@
 // List of available commands
 char* listOfCommands[NUMBER_OF_COMMANDS] = {"help\0", "shutdown\0"};
 
-// Flag to indicate whether the system should shut down
-int shouldShutdown = 0;
-
 // Define size_t as an alias for unsigned int
 typedef unsigned int size_t;
 
@@ -25,6 +22,9 @@ typedef unsigned char uint8_t;
 #define VGA_PORT_DATA 0x3D5
 #define VGA_REG_CURSOR_HIGH 0x0E
 #define VGA_REG_CURSOR_LOW  0x0F
+
+// Define the address for the ACPI shutdown register
+#define ACPI_SHUTDOWN_REGISTER 0x604
 
 // Function to write a byte to a port
 void outb(uint16_t port, uint8_t value) {
@@ -199,6 +199,13 @@ char* cstrncpy(char* dest, const char* src, size_t n) {
     return original_dest;
 }
 
+void shutdown(){
+    outb(ACPI_SHUTDOWN_REGISTER, 0x02);
+
+    asm volatile ("mov $0, %eax\n int $0x16");
+    asm volatile ("hlt");
+}
+
 // Function to check and execute commands
 void checkCommand(char command[10][21]){
     if (cstrcmp(command[0], "help") == 0){
@@ -208,8 +215,10 @@ void checkCommand(char command[10][21]){
         }
     }
     else if (cstrcmp(command[0], "shutdown") == 0){
-        shouldShutdown = 1;
         print("[INFO] Shutting down...");
+
+        shutdown();
+    
     } else{
         print("[ERROR] Command '");
         int numRows = 0;
@@ -281,8 +290,6 @@ void kernelMain() {
             currentToken[0] = '\0';
             // Corrected the array declaration to reset currentCommand
             currentCommand[0] = '\0';
-
-            if (shouldShutdown == 1) return;
 
             for (int i = 0; i <= token; i++) {
                 command[i][0] = '\0';

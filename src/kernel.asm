@@ -13,7 +13,6 @@ bits 32  ;nasm directive - 32 bit
             cli ;clear interrupts-- to diable interrupts
             mov esp, stack_space ;set stack pointer
             call kernelMain ;calls the main kernel function from c file
-            hlt ;halts the CPU
          
         section .bss
         resb 8192 ;8KB memory reserved for the stack

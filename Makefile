@@ -13,6 +13,7 @@ LD_FLAGS = -m elf_i386 -T src/linker.ld
 # Source and build directories
 SRC_DIR = src
 BUILD_DIR = build
+GRUB_DIR = src/boot
 
 # Source files
 NASM_SOURCE = $(SRC_DIR)/kernel.asm
@@ -23,9 +24,11 @@ NASM_OBJ = $(BUILD_DIR)/kernasm.o
 GCC_OBJ = $(BUILD_DIR)/kernc.o
 
 # Target binary
-TARGET = $(BUILD_DIR)/kernel
+TARGET = $(GRUB_DIR)/kernel.k
 
-all: $(TARGET)
+all: clean build iso
+
+build: $(TARGET)
 
 $(NASM_OBJ): $(NASM_SOURCE)
 	$(NASM) $(NASM_FLAGS) $(NASM_SOURCE) -o $(NASM_OBJ)
@@ -38,3 +41,6 @@ $(TARGET): $(NASM_OBJ) $(GCC_OBJ)
 
 clean:
 	rm -f $(BUILD_DIR)/*.o $(TARGET)
+
+iso:
+	grub-mkrescue -o build/output.iso src
