@@ -25,7 +25,7 @@ Most of the code is writen by me, ChatGPT made the cstrncpy and cstrcmp function
 To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
 
 ### Resources
-* [oswiki](https://wiki.osdev.org) - A valuable resource for OS development.
-* [wikipedia](https://www.wikipedia.org/) - General information on various OS-related topics.
-* [reddit](https://www.reddit.com/) - Community insights and discussions on OS development.
-* Other various forums - Additional sources contributing to the development knowledge base.
+* [oswiki](https://wiki.osdev.org)
+* [wikipedia](https://www.wikipedia.org/)
+* [reddit](https://www.reddit.com/)
+* Other various forums
