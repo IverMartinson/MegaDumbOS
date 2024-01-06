@@ -1,9 +1,9 @@
 // Definitions    
 
-    #define NUMBER_OF_COMMANDS 3
+    #define NUMBER_OF_COMMANDS 4
 
     // List of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]\0", "shutdown [shuts down computer]\0", "clear [clears screen]\0"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]\0", "shutdown [shuts down computer]\0", "clear [clears screen]\0", "scroll (int) [scrolls screen]"};
 
     // Define size_t as an alias for unsigned int
     typedef unsigned int size_t;
@@ -28,6 +28,8 @@
     // Define the address for the ACPI shutdown register
     #define ACPI_SHUTDOWN_REGISTER 0x604
 
+    void printInt();
+
 
 
 // String Functions
@@ -46,7 +48,7 @@
     }
 
     // Function to convert an integer to a string
-    char* itoa(int num, char* str, int base) {
+    char* intToString(int num, char* str, int base) {
         int i = 0;
         int isNegative = 0;
 
@@ -76,12 +78,40 @@
         return str;
     }
 
+    int stringToInt(char* str){
+        int final = 0;
+     
+        int length = 0;
+        int power = 1;
+
+        while(str[length] != '\0') {
+            length++;
+            power *= 10;
+        }
+
+        power /= 10;
+
+        for (int i = 0; i < length; i++){
+            if (str[i] < 48 || str[i] > 57) {
+                print("[ERROR] Number of lines is invalid (must be a positive integer)");
+            
+                return -1;
+            }
+
+            final += (str[i] - 48) * power;
+            power /= 10;
+        }
+
+        return final;
+    }
+
     // Function to compare two strings
     int cstrcmp(const char* str1, const char* str2) {
         while (*str1 && (*str1 == *str2)) {
             str1++;
             str2++;
         }
+
         return *(unsigned char*)str1 - *(unsigned char*)str2;
     }
 
@@ -155,6 +185,19 @@
 
 // Kernel Functions
 
+    // Scroll function
+    void scrollScreen(int lines){
+        for (int pass = 0; pass < lines; pass++)
+            for (int line=0; line < 80; line++){
+                for (int cp = 0; cp < 80; cp++){
+                    videoMemPtr[160 * (line - 1) + cp * 2] = videoMemPtr[160 * line + cp * 2];
+                    videoMemPtr[160 * (line - 1) + cp * 2 + 1] = videoMemPtr[160 * line + cp * 2 + 1];
+                }
+            }
+
+        ln -= lines;
+    }
+
     // Function to set the cursor position on the screen
     void setCursorPosition(uint16_t position) {
         outb(VGA_PORT_CTRL, VGA_REG_CURSOR_HIGH);
@@ -165,14 +208,25 @@
 
     // Function to print a single character to the screen
     void printChar(char data) {
+        if (cp > 80){
+            cp = 0;
+            ln++;
+        }
+        
+        if (ln >= 25) {
+            scrollScreen(1);
+            ln = 24;
+        }
+        
         if (data == '\n') {
             ln++;
             cp = 0;
+            return;
         }
 
         videoMemPtr[160 * ln + cp * 2] = data;
         videoMemPtr[160 * ln + cp * 2 + 1] = 0x02;
-            cp += 1;
+        cp += 1;
 
         setCursorPosition(ln*80 + cp);
 
@@ -184,17 +238,9 @@
         unsigned int j = 0;
 
         while (data[j] != '\0') {
-            if (data[j] == '\n') {
-                ln++;
-                cp = -1;
-            }
-            else {
-                videoMemPtr[160 * ln + cp * 2] = data[j];
-                videoMemPtr[160 * ln + cp * 2 + 1] = 0x02;
-            }
+            printChar(data[j]);
 
             ++j;
-            cp += 1;
         }
 
         setCursorPosition(ln*80 + cp);
@@ -205,7 +251,7 @@
     // Function to print an integer to the screen
     void printInt(int data) {
         char buffer[20];
-        itoa(data, buffer, 10);
+        intToString(data, buffer, 10);
         print(buffer);
     }
 
@@ -225,7 +271,7 @@
     }
 
     // Function to check and execute commands
-    void checkCommand(char command[10][21]){
+    void checkCommand(char command[10][21]){        
         // help command
         if (cstrcmp(command[0], "help") == 0){
             for (int j = 0; j < NUMBER_OF_COMMANDS; j++) {
@@ -248,27 +294,32 @@
             ln = -1;
     
         } 
-        
+
+        else if (cstrcmp(command[0], "scroll") == 0){
+            if (command[1][0] == 0) print("[ERROR] Number of lines not specified");
+            if (command[1][0] == 48) print("[ERROR] Number of lines cannot start with or be zero");
+
+            int scrollValue = stringToInt(command[1]);
+
+            if (scrollValue == -1) return;
+
+            scrollScreen(scrollValue);
+
+            ln--;
+        }
+
         else{
             print("[ERROR] Command '");
-            int numRows = 0;
-
-            // Iterate through the rows until an empty row is found
-            while (numRows < 10 && command[numRows][0] != '\0') {
-               numRows++;
-            }
-
-            for (int j=0; j<numRows; j++) {
-                print(command[j]);           
-            }
+            print(command[0]);
             print("' not found. Try 'help' for a list of commands");
         }
+
         return;
     }
 
 
 
-// Main kernel function
+    // Main kernel function
 
     void kernelMain() {
         clearScreen();
@@ -317,7 +368,7 @@
                 
                     else if (ignoreSpace == 0 && currentCommand[j] == ' ') {
                         currentToken[k] = currentCommand[j];
-                        currentToken[k + 1] = '\0';
+                        currentToken[k] = '\0';
                         cstrncpy(command[token], currentToken, 20);
                         currentToken[0] = '\0';
                         token++;
