@@ -1,5 +1,5 @@
-// Definitions    
-
+// Definitions   
+ 
     #define NUMBER_OF_COMMANDS 4
 
     // List of available commands
@@ -78,9 +78,10 @@
         return str;
     }
 
+    // Function to convert a string to an integer
     int stringToInt(char* str){
         int final = 0;
-     
+    
         int length = 0;
         int power = 1;
 
@@ -188,12 +189,11 @@
     // Scroll function
     void scrollScreen(int lines){
         for (int pass = 0; pass < lines; pass++)
-            for (int line=0; line < 80; line++){
+            for (int line=0; line < 80; line++)
                 for (int cp = 0; cp < 80; cp++){
                     videoMemPtr[160 * (line - 1) + cp * 2] = videoMemPtr[160 * line + cp * 2];
                     videoMemPtr[160 * (line - 1) + cp * 2 + 1] = videoMemPtr[160 * line + cp * 2 + 1];
                 }
-            }
 
         ln -= lines;
     }
@@ -213,9 +213,9 @@
             ln++;
         }
         
-        if (ln >= 25) {
+        if (ln >= 24) {
             scrollScreen(1);
-            ln = 24;
+            ln = 23;
         }
         
         if (data == '\n') {
@@ -287,14 +287,14 @@
             shutdown();
         } 
 
-        // clear screen commnad
+        // clear screen command
         else if (cstrcmp(command[0], "clear") == 0){
             clearScreen();
         
             ln = -1;
-    
         } 
 
+        // scroll command
         else if (cstrcmp(command[0], "scroll") == 0){
             if (command[1][0] == 0) print("[ERROR] Number of lines not specified");
             if (command[1][0] == 48) print("[ERROR] Number of lines cannot start with or be zero");
@@ -317,10 +317,7 @@
         return;
     }
 
-
-
     // Main kernel function
-
     void kernelMain() {
         clearScreen();
 
@@ -342,6 +339,20 @@
         print("=> ");
 
         while (1) {
+            int i = cp;
+            int j = ln;
+
+            cp = 0;
+            ln = -1;
+
+            print("cp: ");
+            printInt(i);
+            print("  ln: ");
+            printInt(j);
+
+            cp = i;
+            ln = j;
+
             char key = readKey();
 
             if (key == '\n'){
