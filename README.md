@@ -8,6 +8,10 @@ The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
 ### Bootloader
 The OS's bootloader is GRUB.
 
+### CLI Documentation
+#### Help Menu
+The help menu shows the list of commands that are avalible, aswell as their funtions and inputs. It is formatted like this: `command` (`input type of comand`) [`function of command`]
+
 ## Makefile
 
 ### Function
