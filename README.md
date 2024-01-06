@@ -10,7 +10,8 @@ The OS's bootloader is GRUB.
 
 ### CLI Documentation
 #### Help Menu
-The help menu shows the list of commands that are avalible, aswell as their funtions and inputs. It is formatted like this:
+The help menu shows the list of commands that are avalible, as well as their funtions and inputs. 
+It is formatted like this:
 * `command` (`input type of comand`) [`function of command`]
 
 ## Makefile
