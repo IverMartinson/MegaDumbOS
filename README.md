@@ -1,4 +1,9 @@
 # MegaDumbOS: the Operating System of the Future
 
+## Makefile
+### Function
+The makefile compiles all of the code for the OS into an iso. It outputs into the build folder.
 
-Makefile requires nasm, gcc, ld, and grub-mkrescue. (run requirements.sh)
+### requirements
+The makefile requires nasm, gcc, ld, and grub-mkrescue. 
+Run run requirements.sh if not installed.
