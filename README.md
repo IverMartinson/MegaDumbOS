@@ -9,10 +9,18 @@ The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
 The OS's bootloader is GRUB.
 
 ### CLI Documentation
+
 #### Help Menu
-The help menu shows the list of commands that are avalible, as well as their funtions and inputs. 
-It is formatted like this:
+The help menu shows the list of commands that are avalible, as well as their funtions and inputs. It is formatted like this:
 * `command` (`input type of comand`) [`function of command`]
+
+#### Input Types
+The CLI currently supports english letters, numbers, and the symbols ```, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+
+#### How to Format String Inputs
+If a command requires a string as an input, and
+* Has no spaces, then no formating is required.
+* Has spaces, then wrap the input in ```. E.G, `echo \`this is a test \`` 
 
 ## Makefile
 
