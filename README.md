@@ -19,7 +19,7 @@ To successfully run the makefile, ensure you have the following dependencies ins
 ## Credits
 
 ### Code
-While the majority of the code is authored by the project creator, credit is given to ChatGPT for the initial implementation of cstrncpy and cstrcmp functions, as well as the kernel entry, which have been refactored for optimization.
+Most of the code is writen by me, ChatGPT made the cstrncpy and cstrcmp functions, as well as the kernel entry, which have been refactored to fit in the code.
 
 ### Comments
 To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
