@@ -20,7 +20,7 @@ The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-
 #### How to Format String Inputs
 If a command requires a string as an input and
 * Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `` ` ``. E.g., `echo ``this is a test`` ` 
+* Has spaces, then wrap the input in `` ` ``. E.g., ``echo `this is a test` ``
 
 ## Makefile
 
