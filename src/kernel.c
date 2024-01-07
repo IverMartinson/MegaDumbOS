@@ -1,9 +1,9 @@
 // Definitions   
- 
-    #define NUMBER_OF_COMMANDS 4
+
+    #define NUMBER_OF_COMMANDS 5
 
     // List of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]\0", "shutdown [shuts down computer]\0", "clear [clears screen]\0", "scroll (int) [scrolls screen]"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string) [echos input]", "clear [clears screen]", "scroll (int) [scrolls screen]"};
 
     // Define size_t as an alias for unsigned int
     typedef unsigned int size_t;
@@ -213,9 +213,9 @@
             ln++;
         }
         
-        if (ln >= 24) {
+        if (ln >= 25) {
             scrollScreen(1);
-            ln = 23;
+            ln = 24;
         }
         
         if (data == '\n') {
@@ -287,6 +287,12 @@
             shutdown();
         } 
 
+        // Echo command
+        else if (cstrcmp(command[0], "echo") == 0){
+            print(command[1]);
+            print('\n');
+        }
+
         // clear screen command
         else if (cstrcmp(command[0], "clear") == 0){
             clearScreen();
@@ -339,11 +345,13 @@
         print("=> ");
 
         while (1) {
+            char key = readKey();
+
             int i = cp;
             int j = ln;
 
             cp = 0;
-            ln = -1;
+            ln = 24;
 
             print("cp: ");
             printInt(i);
@@ -352,8 +360,6 @@
 
             cp = i;
             ln = j;
-
-            char key = readKey();
 
             if (key == '\n'){
                 int i = 0;
