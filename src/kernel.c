@@ -28,7 +28,9 @@
     // Define the address for the ACPI shutdown register
     #define ACPI_SHUTDOWN_REGISTER 0x604
 
-    void printInt();
+    void printInt(int);
+    void print(char*);
+    void printChar(char);
 
 
 
@@ -147,8 +149,9 @@
 
     // Function to read a key from the keyboard
     char readKey() {
-        char keyBuffer;
+        unsigned char keyBuffer;
 
+        // Characters
         asm volatile (
             "waitForKey:\n"
             "inb $0x64, %0\n"
@@ -169,6 +172,28 @@
             };
 
             return keyMap[keyBuffer];
+        }
+
+        // Arrow keys
+        if (keyBuffer == 0xE0) {
+            // Escape code for extended keys, read the next byte
+            asm volatile (
+                "waitForArrowKey:\n"
+                "inb $0x64, %0\n"
+                "testb $0x01, %0\n"
+                "jz waitForArrowKey\n"
+                "inb $0x60, %0\n"
+                : "=a" (keyBuffer)
+                : 
+                : 
+            );
+
+            switch (keyBuffer) {
+                case 72: return -1; // Up arrow
+                case 80: return -2; // Down arrow
+                case 75: return -3; // Left arrow
+                case 77: return -4; // Right arrow
+            }
         }
 
         return '\0';
@@ -208,7 +233,7 @@
 
     // Function to print a single character to the screen
     void printChar(char data) {
-        if (cp > 80){
+        if (cp >= 80){
             cp = 0;
             ln++;
         }
@@ -276,7 +301,7 @@
         if (cstrcmp(command[0], "help") == 0){
             for (int j = 0; j < NUMBER_OF_COMMANDS; j++) {
                 print(listOfCommands[j]);
-                if (j < NUMBER_OF_COMMANDS - 1) print("\n ");
+                if (j < NUMBER_OF_COMMANDS - 1) printChar('\n');
             }
         }
 
@@ -290,7 +315,7 @@
         // Echo command
         else if (cstrcmp(command[0], "echo") == 0){
             print(command[1]);
-            print('\n');
+            printChar('\n');
         }
 
         // clear screen command
@@ -434,6 +459,15 @@
                 setCursorPosition(ln*80 + cp);
 
                 canDelete--;
+            }
+
+            else if (key < 0){
+                switch (key){
+                    case -1: print("up"); break;
+                    case -2: print("down"); break;
+                    case -3: print("left"); break;
+                    case -4: print("right"); break;
+                }
             }
 
             else if (key != '\0'){
