@@ -4,46 +4,46 @@
 
 ### Language  
 
-   The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.  
+&emsp;The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.  
 
 ### Bootloader
-The OS's bootloader is GRUB.
+&emsp;The OS's bootloader is GRUB.
 
 ### CLI Documentation
 
 #### Help Menu
-The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:
-* `command` (`input type of command`) [`function of command`]
+&emsp;The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:  
+&emsp; * `command` (`input type of command`) [`function of command`]
 
 #### Input Types
-The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+&emsp;The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
 
 #### How to Format String Inputs
-If a command requires a string as an input and
-* Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `` ` ` ``.
+&emsp;If a command requires a string as an input and  
+&emsp; * Has no spaces, then no formatting is required.  
+&emsp; * Has spaces, then wrap the input in `` ` ` ``.
   
-E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
-Currently, string inputs cannot have the `` ` `` character in them.
+&emsp;E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
+&emsp;Currently, string inputs cannot have the `` ` `` character in them.
 
 ## Makefile
 
 ### Function
-The makefile compiles all of the code for the OS into an ISO, outputting into the build folder for ease of access.
+&emsp;The makefile compiles all of the code for the OS into an ISO, outputting into the build folder for ease of access.
 
 ### Requirements
-To successfully run the makefile, ensure you have the following dependencies installed: nasm, gcc, ld, and grub-mkrescue. If not installed, run `requirements.sh` to install them.
+&emsp;To successfully run the makefile, ensure you have the following dependencies installed: nasm, gcc, ld, and grub-mkrescue. If not installed, run `requirements.sh` to install them.
 
 ## Credits
 
 ### Code
-Most of the code is written by me. ChatGPT made the cstrncpy and cstrcmp functions, as well as the kernel entry, which I refactored to fit in the code.
+&emsp;Most of the code is written by me. ChatGPT made the cstrncpy and cstrcmp functions, as well as the kernel entry, which I refactored to fit in the code.
 
 ### Comments
-To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
+&emsp;To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
 
 ### Resources
-* [oswiki](https://wiki.osdev.org)
-* [wikipedia](https://www.wikipedia.org/)
-* [reddit](https://www.reddit.com/)
-* Other various forums
+&emsp; * [oswiki](https://wiki.osdev.org)  
+&emsp; * [wikipedia](https://www.wikipedia.org/)  
+&emsp; * [reddit](https://www.reddit.com/)  
+&emsp; * Other various forums
