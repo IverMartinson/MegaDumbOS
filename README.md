@@ -13,7 +13,8 @@
 
 #### Help Menu
 &emsp;The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:  
-&emsp; * `command` (`input type of command`) [`function of command`]
+&emsp; * `command` (`input type of command`) [`function of command`]  
+&emsp; (if no input type is shown, no input is required)
 
 #### Input Types
 &emsp;The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
