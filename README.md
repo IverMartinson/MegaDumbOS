@@ -37,7 +37,7 @@ To successfully run the makefile, ensure you have the following dependencies ins
 ## Credits
 
 ### Code
-Most of the code is written by me. ChatGPT made the cstrncpy and cstrcmp functions, as well as the kernel entry, which have been refactored to fit in the code.
+Most of the code is written by me. ChatGPT made the cstrncpy and cstrcmp functions, as well as the kernel entry, which I refactored to fit in the code.
 
 ### Comments
 To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
