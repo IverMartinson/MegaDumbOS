@@ -2,10 +2,10 @@
 
 ## OS
 
-### Language
+### ⋅⋅⋅Language
 The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
 
-### Bootloader
+### ⋅⋅⋅Bootloader
 The OS's bootloader is GRUB.
 
 ### CLI Documentation
