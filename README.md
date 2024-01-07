@@ -38,7 +38,7 @@
 ## Credits
 
 ### Code
-&emsp;Most of the code is written by me. ChatGPT made around 3/4 of the conversion functions, and inb and outb functions, as well as the kernel entry, which I refactored to fit in the code.
+&emsp;Most of the code is written by me. ChatGPT made around 3/4 of the conversion functions, and inb and outb functions, as well as the kernel entry, which I refactored.
 
 ### Comments
 &emsp;To enhance code understanding, almost all comments have been written or rewritten by ChatGPT for clarity.
