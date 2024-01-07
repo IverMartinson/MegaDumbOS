@@ -2,35 +2,35 @@
 
 ## OS
 
-  ### Language
-  The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
+&nbsp;### Language
+&nbsp;The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
 
-### Bootloader
-The OS's bootloader is GRUB.
+&nbsp;### Bootloader
+&nbsp;The OS's bootloader is GRUB.
 
-### CLI Documentation
+&nbsp;### CLI Documentation
 
-#### Help Menu
-The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:
-* `command` (`input type of command`) [`function of command`]
+&nbsp;#### Help Menu
+&nbsp;The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:
+&nbsp;* `command` (`input type of command`) [`function of command`]
 
-#### Input Types
-The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+&nbsp;#### Input Types
+&nbsp;The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
 
-#### How to Format String Inputs
-If a command requires a string as an input and
-* Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `` ` ` ``.
+&nbsp;#### How to Format String Inputs
+&nbsp;If a command requires a string as an input and
+&nbsp;* Has no spaces, then no formatting is required.
+&nbsp;* Has spaces, then wrap the input in `` ` ` ``.
   
-E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
-Currently, string inputs cannot have the `` ` `` character in them.
+&nbsp;E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
+&nbsp;Currently, string inputs cannot have the `` ` `` character in them.
 
-## Makefile
+&nbsp;## Makefile
 
-### Function
+&nbsp;### Function
 The makefile compiles all of the code for the OS into an ISO, outputting into the build folder for ease of access.
 
-### Requirements
+&nbsp;### Requirements
 To successfully run the makefile, ensure you have the following dependencies installed: nasm, gcc, ld, and grub-mkrescue. If not installed, run `requirements.sh` to install them.
 
 ## Credits
