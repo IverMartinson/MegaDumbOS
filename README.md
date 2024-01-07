@@ -15,12 +15,12 @@ The help menu shows the list of commands that are available, as well as their fu
 * `command` (`input type of command`) [`function of command`]
 
 #### Input Types
-The CLI currently supports English letters, numbers, and the symbols ```, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+The CLI currently supports English letters, numbers, and the symbols ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
 
 #### How to Format String Inputs
 If a command requires a string as an input and
 * Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `\``. E.g., `echo \`this is a test \`` 
+* Has spaces, then wrap the input in ``. E.g., `echo \`this is a test \`` 
 
 ## Makefile
 
