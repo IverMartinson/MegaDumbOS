@@ -20,7 +20,7 @@ The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-
 #### How to Format String Inputs
 If a command requires a string as an input and
 * Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `` `` ``.
+* Has spaces, then wrap the input in `` ` ` ``.
   
 E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
 Currently, string inputs cannot have the \` \` character in them.
