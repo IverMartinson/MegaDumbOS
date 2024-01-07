@@ -1,29 +1,29 @@
 # MegaDumbOS: the Operating System of the Future
 
-## OS
+   ## OS  
 
-### Language
-⋅⋅⋅The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.
+      ### Language  
+      The MegaDumbOS kernel is written in C, with a kernel entry in x86 ASM.  
 
-### Bootloader
-The OS's bootloader is GRUB.
+   ### Bootloader
+   The OS's bootloader is GRUB.
 
-### CLI Documentation
+   ### CLI Documentation
 
-#### Help Menu
-The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:
-* `command` (`input type of command`) [`function of command`]
+   #### Help Menu
+   The help menu shows the list of commands that are available, as well as their functions and inputs. It is formatted like this:
+   * `command` (`input type of command`) [`function of command`]
 
-#### Input Types
-The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+   #### Input Types
+   The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
 
-#### How to Format String Inputs
-If a command requires a string as an input and
-* Has no spaces, then no formatting is required.
-* Has spaces, then wrap the input in `` ` ` ``.
+   #### How to Format String Inputs
+   If a command requires a string as an input and
+   * Has no spaces, then no formatting is required.
+   * Has spaces, then wrap the input in `` ` ` ``.
   
-E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
-Currently, string inputs cannot have the `` ` `` character in them.
+   E.g., ``echo `hello, world` `` would output `hello, world`, but `echo hello, world` would output `hello,`.  
+   Currently, string inputs cannot have the `` ` `` character in them.
 
 ## Makefile
 
