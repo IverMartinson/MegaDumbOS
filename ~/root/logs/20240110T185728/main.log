@@ -1,6 +1,0 @@
-2024-01-10 18:57:28.793 [info] update#setState idle
-2024-01-10 18:57:30.292 [error] Blocked vscode-webview request vscode-webview://0jetbvcsrfbdibcvs7n1qpd29d28hcl89qms74k8uumuv6httiul/index.html?id=37fb1e2c-c3f0-4f12-b67c-0415d45df272&origin=37fb1e2c-c3f0-4f12-b67c-0415d45df272&swVersion=4&extensionId=&platform=electron&vscode-resource-base-authority=vscode-resource.vscode-cdn.net&parentOrigin=vscode-file%3A%2F%2Fvscode-app
-2024-01-10 18:57:58.776 [info] update#setState checking for updates
-2024-01-10 18:57:58.779 [info] update#setState available for download
-2024-01-10 18:58:04.231 [info] Extension host with pid 24080 exited with code: 0, signal: unknown.
-2024-01-10 18:58:04.234 [error] [UtilityProcess id: 1, type: fileWatcher, pid: 24061]: crashed with code 15 and reason 'killed'
