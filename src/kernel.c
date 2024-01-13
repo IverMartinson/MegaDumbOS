@@ -1,4 +1,4 @@
-// Definitions   
+// Definitions ----------------------------------------------------------------------------------------------------------------
             
     #define NUMBER_OF_COMMANDS 5
 
@@ -56,9 +56,11 @@
     void dPrintChar(char);
     void setCursorPosition(uint16_t);
 
+// Definitions ----------------------------------------------------------------------------------------------------------------
 
 
-// String Functions
+
+// String Functions ----------------------------------------------------------------------------------------------------------------
 
     // Function to reverse a string
     void reverse(char* str, int length) {
@@ -162,9 +164,11 @@
         return original_dest;
     }
 
+// String Functions ----------------------------------------------------------------------------------------------------------------
 
 
-// System Functions
+
+// System Functions ----------------------------------------------------------------------------------------------------------------
 
     // Define the input/output functions for x86 architecture
     static inline void outb(unsigned short port, unsigned char value) {
@@ -267,9 +271,11 @@
         asm volatile ("hlt");
     }
 
+// System Functions ----------------------------------------------------------------------------------------------------------------
 
 
-// Kernel Functions
+
+// Kernel Functions ----------------------------------------------------------------------------------------------------------------
 
     // Print debug stuff at the bottom of the screen
     void updateDebug(){
@@ -323,14 +329,23 @@
 
     // Scroll function
     void scrollScreen(int lines){
-        for (int pass = 0; pass < lines; pass++)
-            for (int line=0; line < 80; line++)
+        int i = ln;
+
+        for (int pass = 0; pass < lines; pass++){
+            for (int line=0; line < 80; line++){
                 for (int cp = 0; cp < 80; cp++){
                     videoMemPtr[160 * (line - 1) + cp * 2] = videoMemPtr[160 * line + cp * 2];
                     videoMemPtr[160 * (line - 1) + cp * 2 + 1] = videoMemPtr[160 * line + cp * 2 + 1];
                 }
 
-        ln -= lines;
+            cp = 0;
+            ln = 23;
+            print("                                                                                ");
+            ln--;
+            }
+        }
+
+        ln = i - lines;
     }
 
     // Function to set the cursor position on the screen
@@ -350,8 +365,6 @@
         
         if (ln >= 24) {
             scrollScreen(1);
-            ln = 23;
-            print("                                                                                ");
             cp = 0;
         }
         
@@ -615,3 +628,5 @@
 
         return;
     }
+
+// Kernel Functions ----------------------------------------------------------------------------------------------------------------
