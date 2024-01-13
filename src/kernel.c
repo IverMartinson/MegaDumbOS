@@ -331,6 +331,13 @@
     void scrollScreen(int lines){
         int i = ln;
 
+        if (i - lines <= 0) {
+            clearScreen();
+            ln = 0;
+            cp = 0;
+            return;
+        }
+
         for (int pass = 0; pass < lines; pass++){
             for (int line=0; line < 80; line++){
                 for (int cp = 0; cp < 80; cp++){
@@ -346,6 +353,8 @@
         }
 
         ln = i - lines;
+
+        if (ln < 0) ln = 0;
     }
 
     // Function to set the cursor position on the screen
