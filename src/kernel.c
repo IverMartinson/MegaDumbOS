@@ -55,6 +55,7 @@
     void dPrint(char*);
     void dPrintChar(char);
     void setCursorPosition(uint16_t);
+    void clearScreen();
 
 // Definitions ----------------------------------------------------------------------------------------------------------------
 
@@ -529,6 +530,7 @@
         int token = 0;
         int canDelete = 0;
         int ignoreSpace = 0;
+        int arrowKeyOffset = 0;
 
         // Command prompt
         print("=> ");
@@ -582,6 +584,7 @@
                 token = 0;
                 currentToken[0] = '\0';
                 currentCommand[0] = '\0';
+                arrowKeyOffset = 0;
 
                 for (int i = 0; i <= token; i++) {
                     command[i][0] = '\0';
@@ -612,11 +615,16 @@
             }
 
             else if (key < 0){
+                int i = 0;
+                while (currentCommand[i] != '\0') {
+                    i++;
+                }
+
                 switch (key){
                     case -1: print("up"); break;
                     case -2: print("down"); break;
-                    case -3: print("left"); break;
-                    case -4: print("right"); break;
+                    case -3: if (arrowKeyOffset >= i) {break;} arrowKeyOffset++; cp--; setCursorPosition(ln*80 + cp); break; // Left
+                    case -4: if (arrowKeyOffset <= 0) {break;} arrowKeyOffset--; cp++; setCursorPosition(ln*80 + cp); break; // Right
                 }
             }
 
@@ -626,8 +634,17 @@
                     i++;
                 }
 
-                currentCommand[i] = key;
-                currentCommand[i + 1] = '\0';
+                cp++;
+
+                int offset = i - arrowKeyOffset;
+                for (int j = i; j >= offset; j--){
+                    if (currentCommand[j] != '\0') printChar(currentCommand[j]);
+                    currentCommand[j + 1] = currentCommand[j];
+                }
+
+                cp -= arrowKeyOffset + 1;
+
+                currentCommand[offset] = key;
 
                 canDelete++;
 
