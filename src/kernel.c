@@ -290,6 +290,7 @@
         dPrintInt(i);
         dPrint("  ln: ");
         dPrintInt(j);
+        dPrint("   ");
 
         getCurrentTime(&currentTime);
 
@@ -602,14 +603,17 @@
                     i++;
                 }
 
-                currentCommand[i - 1] = '\0';
-
                 cp--;
 
-                printChar('\0');
-        
-                cp--;
-                setCursorPosition(ln*80 + cp);
+                int offset = i - arrowKeyOffset;
+                for (int j = offset - 1; j <= i; j++){
+                    currentCommand[j] = currentCommand[j + 1];
+                    printChar(currentCommand[j]);
+                }
+
+                print("   ");
+
+                cp -= arrowKeyOffset + 5;
 
                 canDelete--;
             }
@@ -623,8 +627,8 @@
                 switch (key){
                     case -1: print("up"); break;
                     case -2: print("down"); break;
-                    case -3: if (arrowKeyOffset >= i) {break;} arrowKeyOffset++; cp--; setCursorPosition(ln*80 + cp); break; // Left
-                    case -4: if (arrowKeyOffset <= 0) {break;} arrowKeyOffset--; cp++; setCursorPosition(ln*80 + cp); break; // Right
+                    case -3: if (arrowKeyOffset >= i) {break;} arrowKeyOffset++; cp--; canDelete--; setCursorPosition(ln*80 + cp); break; // Left
+                    case -4: if (arrowKeyOffset <= 0) {break;} arrowKeyOffset--; cp++; canDelete++; setCursorPosition(ln*80 + cp); break; // Right
                 }
             }
 
