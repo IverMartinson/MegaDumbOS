@@ -6,7 +6,7 @@
     int TIMEZONE = -5;
 
     // List of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string) [echos input]", "clear [clears screen]", "scroll (int) [scrolls screen]"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", " shutdown [shuts down computer]", " echo (string) [echos input]", " clear [clears screen]", " scroll (int) [scrolls screen]"};
 
     // Define size_t as an alias for unsigned int
     typedef unsigned int size_t;
