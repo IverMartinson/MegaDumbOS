@@ -545,12 +545,12 @@
         while (1) {
             char key = readKey();
 
-            if (key == '\n'){
-                int i = 0;
-                while (currentCommand[i] != '\0') {
-                    i++;
-                }
+            int i = 0;
+            while (currentCommand[i] != '\0') {
+                i++;
+            }
 
+            if (key == '\n'){
                 for (int j = 0; j < i; j++) {
                     int k = 0;
                     while (currentToken[k] != '\0') {
@@ -603,11 +603,6 @@
 
             else if (key == '\b'){
                 if (canDelete <= 0) continue;
-            
-                int i = 0;
-                while (currentCommand[i] != '\0') {
-                    i++;
-                }
 
                 cp--;
 
@@ -625,11 +620,6 @@
             }
 
             else if (key == -5) {
-                int i = 0;
-                while (currentCommand[i] != '\0') {
-                    i++;
-                }
-
                 if (arrowKeyOffset > i || arrowKeyOffset <= 0) {
                     continue;
                 }
@@ -647,11 +637,6 @@
             }
 
             else if (key < 0){
-                int i = 0;
-                while (currentCommand[i] != '\0') {
-                    i++;
-                }
-
                 switch (key){
                     case -1: print("up"); break;
                     case -2: print("down"); break;
@@ -661,11 +646,6 @@
             }
 
             else if (key != '\0'){
-                int i = 0;
-                while (currentCommand[i] != '\0') {
-                    i++;
-                }
-
                 cp++;
 
                 int offset = i - arrowKeyOffset;
