@@ -242,22 +242,28 @@
         if (keyBuffer == 0xE0) {
             // Escape code for extended keys, read the next byte
             asm volatile (
-                "waitForArrowKey:\n"
-                "call updateDebug\n"
-                "inb $0x64, %0\n"
-                "testb $0x01, %0\n"
-                "jz waitForArrowKey\n"
-                "inb $0x60, %0\n"
-                : "=a" (keyBuffer)
-                : 
-                : 
+            "waitForArrowKey:\n"
+            "call updateDebug\n"
+            "inb $0x64, %0\n"
+            "testb $0x01, %0\n"
+            "jz waitForArrowKey\n"
+            "inb $0x60, %0\n"
+            : "=a" (keyBuffer)
+            : 
+            : 
             );
 
-            switch (keyBuffer) {
-                case 72: return -1; // Up arrow
-                case 80: return -2; // Down arrow
-                case 75: return -3; // Left arrow
-                case 77: return -4; // Right arrow
+            char keyMap[] = {
+                -1, '\0', '\0', -3, '\0', -4, '\0', '\0', -2, '\0', '\0', -5
+            };
+
+            // Adjust index based on the escape code and handle out-of-range values
+            int index = keyBuffer - 72;
+            if (index >= 0 && index < sizeof(keyMap) / sizeof(keyMap[0])) {
+                return keyMap[index];
+            } else {
+                // Handle out-of-range values, return a default value or an error code
+                return '\0';
             }
         }
 
@@ -616,6 +622,28 @@
                 cp -= arrowKeyOffset + 5;
 
                 canDelete--;
+            }
+
+            else if (key == -5) {
+                int i = 0;
+                while (currentCommand[i] != '\0') {
+                    i++;
+                }
+
+                if (arrowKeyOffset > i || arrowKeyOffset <= 0) {
+                    continue;
+                }
+
+                int offset = i - arrowKeyOffset;
+                for (int j = offset; j <= i; j++) {
+                    currentCommand[j] = currentCommand[j + 1];
+                    printChar(currentCommand[j]);
+                }
+
+                print("   ");
+
+                cp -= arrowKeyOffset + 4;
+                arrowKeyOffset--;
             }
 
             else if (key < 0){
