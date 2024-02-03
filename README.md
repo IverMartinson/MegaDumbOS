@@ -38,9 +38,9 @@
 &emsp; * [reddit](https://www.reddit.com/)  
 &emsp; * Other various forums
 
-# How To Run Or Install MegaDumbOS
+# How To Run Or Install MegaDumbOS On Linux
 
-## Running With QEMU On Linux
+## Running With Emulator (QEMU) On Linux
 
 ### 1: Makefile
 
@@ -61,7 +61,7 @@
 ## Installing MegaDumbOS On Linux
 
 ### 1: Makefile
-&emsp;The first step is to run the makefile. Run it with `sudo make all`. Be sure to be in the same folder.
+&emsp;The first step is to run the makefile. Run it with `make linux`. Be sure to be in the same folder.
 
 ### 2: Lsblk Command
 &emsp;Use lsblk to find out which media you would like to install to. Be ABSOLUTLY SURE you choose the correct one. Choosing the wrong disk may result in data loss.
@@ -76,4 +76,34 @@
 &emsp;Use `eject /dev/YOURDEVICEHERE` to eject the drive. Replace YOURDEVICEHERE with the correct device. 
 
 ### 6: Boot Into MegaDumbOS
-&emsp;Finally, restart the computer. Then, boot into the BOIS or boot menu. It may vary from manufacturer, but usually when you see the manufacturer logo, you should press F2, F12 or DEL. Then go to the boot section. You should see your removable drive. Then select it and boot it. There you go!
+&emsp;Finally, restart the computer. Then, boot into the BOIS or boot menu. It may vary from manufacturer, but usually when you see the manufacturer logo, you should press F2, F12 or DEL. Then go to the boot section. You should see your drive. Then select it and boot it.
+
+# How To Run Or Install MegaDumbOS On Windows
+
+## Running With Emulator (VirtualBox) On Windows
+
+### Preface
+&emsp;Please note that some features of MegaDumbOS may not function properly on VirtualBox, as it was designed for Linux on QEMU.
+
+### 1: Makefile
+&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+
+### 2: Install VirtualBox
+&emsp;Go to [the VirtualBox downloads page](https://www.virtualbox.org/wiki/Downloads) and click `Windows Hosts`. Then run the exe.
+
+### 3: Use VirtualBox
+&emsp;Open VirtualBox. Click the new button. For ISO select the newley built `output.iso` in the build folder. Follow the rest of the steps.
+
+### 4: Run MegaDumbOS
+&emsp;After creating the virtual machine, double-click on the VM's entry in the machine list in VirtualBox Manager. Select the VM's entry in the machine list in VirtualBox Manager, and click Start in the toolbar the top of the window. 
+
+## Installing MegaDumbOS On Windows
+
+### 1: Makefile
+&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+
+### 2: Download Rufus
+&emsp;Go to [the Rufus download page](https://rufus.ie/downloads/) and download the latest version.
+
+### 3: Run Rufus
+&emsp;Run the exe that you downloaded. Click the `SELECT` button and select the newly built `output.iso`. Then, if it isn't allready selected, chose the correct device that you want MegaDumbOS on. Finally, click the start button.
