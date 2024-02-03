@@ -107,7 +107,3 @@
 
 ### 3: Run Rufus
 &emsp;Run the exe that you downloaded. Click the `SELECT` button and select the newly built `output.iso`. Then, if it isn't allready selected, chose the correct device that you want MegaDumbOS on. Finally, click the start button.
-<<<<<<< HEAD
-
-=======
->>>>>>> 1929735ac9527de5b342a8035dc7f7a69bd7dd21
