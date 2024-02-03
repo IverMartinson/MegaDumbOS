@@ -58,7 +58,7 @@
 #### Execute Run.sh
 &emsp;To execute run.sh, make sure you have QEMU installed and the latest build of MegaDumbOS. Run it with `./run.sh`. If you get any errors about permissions, run `chmod 777 run.sh`.
 
-## Installing MegaDumbOS
+## Installing MegaDumbOS On Linux
 
 ### 1: Makefile
 &emsp;The first step is to run the makefile. Run it with `sudo make all`. Be sure to be in the same folder.
