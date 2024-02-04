@@ -38,7 +38,7 @@
 &emsp; * [reddit](https://www.reddit.com/)  
 &emsp; * Other various forums
 
-# How To Run Or Install MegaDumbOS On Linux
+# How To Run Or Install MegaDumbOS On Linux And Windows
 
 ## Running With Emulator (QEMU) On Linux
 
