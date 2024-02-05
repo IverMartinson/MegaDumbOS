@@ -85,8 +85,8 @@
 ### Preface
 &emsp;Please note that some features of MegaDumbOS may not function properly on VirtualBox, as it was designed for Linux on QEMU.
 
-### 1: Makefile
-&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+### 1: Make.bat
+&emsp;The first step is to run make.bat and build MegaDumbOS. Run it with `make.bat`. Be sure to be in the same folder.
 
 ### 2: Install VirtualBox
 &emsp;Go to [the VirtualBox downloads page](https://www.virtualbox.org/wiki/Downloads) and click `Windows Hosts`. Then run the exe.
@@ -99,8 +99,8 @@
 
 ## Installing MegaDumbOS On Windows
 
-### 1: Makefile
-&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+### 1: Make.bat
+&emsp;The first step is to run make.bat and build MegaDumbOS. Run it with `make.bat`. Be sure to be in the same folder.
 
 ### 2: Download Rufus
 &emsp;Go to [the Rufus download page](https://rufus.ie/downloads/) and download the latest version.
