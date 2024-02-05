@@ -38,7 +38,7 @@
 &emsp; * [reddit](https://www.reddit.com/)  
 &emsp; * Other various forums
 
-# How To Run Or Install MegaDumbOS On Linux
+# How To Run Or Install MegaDumbOS On Linux And Windows
 
 ## Running With Emulator (QEMU) On Linux
 
@@ -85,8 +85,8 @@
 ### Preface
 &emsp;Please note that some features of MegaDumbOS may not function properly on VirtualBox, as it was designed for Linux on QEMU.
 
-### 1: Makefile
-&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+### 1: Make.bat
+&emsp;The first step is to run make.bat and build MegaDumbOS. Run it with `make.bat`. Be sure to be in the same folder.
 
 ### 2: Install VirtualBox
 &emsp;Go to [the VirtualBox downloads page](https://www.virtualbox.org/wiki/Downloads) and click `Windows Hosts`. Then run the exe.
@@ -99,15 +99,20 @@
 
 ## Installing MegaDumbOS On Windows
 
-### 1: Makefile
-&emsp;The first step is to run the makefile. Run it with `make windows`. Be sure to be in the same folder.
+### 1: Make.bat
+&emsp;The first step is to run make.bat and build MegaDumbOS. Run it with `make.bat`. Be sure to be in the same folder.
 
 ### 2: Download Rufus
 &emsp;Go to [the Rufus download page](https://rufus.ie/downloads/) and download the latest version.
 
 ### 3: Run Rufus
 &emsp;Run the exe that you downloaded. Click the `SELECT` button and select the newly built `output.iso`. Then, if it isn't allready selected, chose the correct device that you want MegaDumbOS on. Finally, click the start button.
-<<<<<<< HEAD
 
-=======
->>>>>>> 1929735ac9527de5b342a8035dc7f7a69bd7dd21
+### 4: Rename The Drive (optional)
+&emsp;In file explorer, go to `This PC`. Right-click on the device MegaDumbOS is installed on. Click rename. Type in MegaDumbOS.
+
+### 5: Eject The Drive
+&emsp;In file explorer, go to `This PC`. Right-click on the device MegaDumbOS is installed on. Click eject.
+
+### 4: Boot Into MegaDumbOS
+&emsp;Finally, restart the computer. Then, boot into the BOIS or boot menu. It may vary from manufacturer, but usually when you see the manufacturer logo, you should press F2, F12 or DEL. Then go to the boot section. You should see your drive. Then select it and boot it.

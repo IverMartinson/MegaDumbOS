@@ -238,7 +238,7 @@
             return keyMap[keyBuffer];
         }
 
-        // Arrow keys
+        // Special keys
         if (keyBuffer == 0xE0) {
             // Escape code for extended keys, read the next byte
             asm volatile (
