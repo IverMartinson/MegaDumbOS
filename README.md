@@ -22,7 +22,7 @@
 &emsp; * Has no spaces, then no formatting is required.  
 &emsp; * Has spaces, then wrap the input in `` ` ` ``.
   
-&emsp;E.g., ``echo `hello world` `` would output `hello world`, but `echo hello world` would output `hello`.  
+&emsp;E.g, ``echo `hello world` `` would output `hello world`, but `echo hello world` would output `hello`.  
 &emsp;Currently, string inputs cannot have the `` ` `` character in them.
 
 ## Credits
