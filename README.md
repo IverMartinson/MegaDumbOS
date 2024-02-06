@@ -17,7 +17,7 @@
 &emsp; (if no input type is shown, no input is required)
 
 #### Input Types
-&emsp;The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.` and `/`.
+&emsp;The CLI currently supports English letters, numbers, and the symbols `` ` ``, `-`, `=`, `[`, `]`, `\`, `;`, `'`, `,`, `.`, and `/`.
 
 #### How to Format String Inputs
 &emsp;If a command requires a string as an input and  
