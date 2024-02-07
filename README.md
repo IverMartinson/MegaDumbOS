@@ -97,6 +97,8 @@
 
 ## Installing MegaDumbOS On Windows
 
+## (make.bat doesn't work right now)
+
 ### 1: Make.bat
 &emsp;The first step is to run make.bat and build MegaDumbOS. Run it with `make.bat`. Be sure to be in the same folder.
 
