@@ -1,4 +1,4 @@
-// Definitions ----------------------------------------------------------------------------------------------------------------
+// Definitions ---------------------------------------------------------------------------------------------------------------------
             
     #define NUMBER_OF_COMMANDS 5
 
@@ -57,7 +57,11 @@
     void setCursorPosition(uint16_t);
     void clearScreen();
 
-// Definitions ----------------------------------------------------------------------------------------------------------------
+    // XTRA
+    extern void xtraASM();
+    extern void enableInterrupts();
+
+// Definitions ---------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -181,6 +185,22 @@
         asm volatile("inb %1, %0" : "=a"(value) : "Nd"(port));
         return value;
     }
+
+
+    void read_sector(uint16_t *buffer, int sector_size) {
+        // Inline assembly to transfer data using REP INSW
+        asm volatile (
+            "cld\n\t"               // Clear direction flag for forward movement
+            "rep insw\n\t"          // Repeat the INSW instruction based on buffer size
+            : "=D" (buffer)         // Output: Use buffer as destination (EDI)
+            : "d" (0x1F0), "c" (sector_size / sizeof(uint16_t)) // Inputs: Use port 0x1F0 as source (EDX), buffer size in words (ECX)
+            : "memory"              // Clobbered: Indicate memory has been modified
+        );
+    }
+
+    // Read from disk
+    extern void readFromDisk();
+
 
     // BCD to Decimal conversion
     int bcd_to_decimal(int bcd) {
@@ -346,19 +366,18 @@
             return;
         }
 
-        for (int pass = 0; pass < lines; pass++){
-            for (int line=0; line < 80; line++){
+        for (int pass=0; pass < lines; pass++){
+            for (int line=0; line < 24; line++){
                 for (int cp = 0; cp < 80; cp++){
                     videoMemPtr[160 * (line - 1) + cp * 2] = videoMemPtr[160 * line + cp * 2];
                     videoMemPtr[160 * (line - 1) + cp * 2 + 1] = videoMemPtr[160 * line + cp * 2 + 1];
                 }
-
-            cp = 0;
-            ln = 23;
-            print("                                                                                ");
-            ln--;
             }
         }
+
+        cp = 0;
+        ln = 23;
+        print("                                                                                ");
 
         ln = i - lines;
 
@@ -380,15 +399,15 @@
             ln++;
         }
         
-        if (ln >= 24) {
-            scrollScreen(1);
-            cp = 0;
-        }
-        
         if (data == '\n') {
             ln++;
             cp = 0;
             return;
+        }
+
+        if (ln >= 24) {
+            scrollScreen(ln - 23);
+            cp = 0;
         }
 
         videoMemPtr[160 * ln + cp * 2] = data;
@@ -499,8 +518,8 @@
 
         // scroll command
         else if (cstrcmp(command[0], "scroll") == 0){
-            if (command[1][0] == 0) print("[ERROR] Number of lines not specified");
-            if (command[1][0] == 48) print("[ERROR] Number of lines cannot start with or be zero");
+            if (command[1][0] == 0) print("\n[ERROR] Number of lines not specified\n");
+            if (command[1][0] == 48) print("\n[ERROR] Number of lines cannot start with or be zero\n");
 
             int scrollValue = stringToInt(command[1]);
 
@@ -509,6 +528,46 @@
             scrollScreen(scrollValue);
 
             ln--;
+        }
+
+        // Read from disk
+        else if (cstrcmp(command[0], "read") == 0){
+            readFromDisk();
+        }
+
+        // XTRA
+        else if (cstrcmp(command[0], "xtra") == 0){
+            if (cstrcmp(command[1], "shutdown") == 0) {
+                print("\n[INFO] Shutting down...");
+
+                return;
+            }
+            else if (cstrcmp(command[1], "write") == 0) {
+                print("\n[INFO] Writing to disk...");
+                
+                return;
+            }
+            else if (cstrcmp(command[1], "read") == 0) { 
+                print("\n[INFO] Reading from disk...");
+            
+                readFromDisk();
+
+                return;
+            }
+            else if (cstrcmp(command[1], "enableint") == 0) {
+                print("\n[INFO] Enabling interrupts...");
+                
+                enableInterrupts();
+                
+                return;
+            }
+            else if (cstrcmp(command[1], "") == 0){
+                print("\n[ERROR] No XTRA command specified\n");
+                
+                return;
+            }
+            
+            print("\n[ERROR] Unknown XTRA command\n");
         }
 
         else{
