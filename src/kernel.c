@@ -1,12 +1,12 @@
 // Definitions ---------------------------------------------------------------------------------------------------------------------
             
-    #define NUMBER_OF_COMMANDS 5
+    #define NUMBER_OF_COMMANDS 7
 
     // Timezone
     int TIMEZONE = -5;
 
     // List of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", " shutdown [shuts down computer]", " echo (string) [echos input]", " clear [clears screen]", " scroll (int) [scrolls screen]"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "read (int(sector)) (int(# of sectors)) [reads data from the disk]"};
 
     // Define size_t as an alias for unsigned int
     typedef unsigned int size_t;
@@ -18,7 +18,8 @@
     int ln = 0;
     int cp = 0;
 
-    // Define uint16_t and uint8_t as aliases for unsigned short and unsigned char
+    // Define uint32_t, uint16_t, and uint8_t
+    typedef unsigned int uint32_t;
     typedef unsigned short uint16_t;
     typedef unsigned char uint8_t;
 
@@ -60,6 +61,7 @@
     // XTRA
     extern void xtraASM();
     extern void enableInterrupts();
+    extern void readFromDisk(unsigned short *dataBuffer);
 
 // Definitions ---------------------------------------------------------------------------------------------------------------------
 
@@ -186,16 +188,83 @@
         return value;
     }
 
+    static inline void outw(unsigned short port, unsigned short value) {
+        asm volatile("outw %0, %1" : : "a"(value), "Nd"(port));
+    }
 
-    void read_sector(uint16_t *buffer, int sector_size) {
-        // Inline assembly to transfer data using REP INSW
-        asm volatile (
-            "cld\n\t"               // Clear direction flag for forward movement
-            "rep insw\n\t"          // Repeat the INSW instruction based on buffer size
-            : "=D" (buffer)         // Output: Use buffer as destination (EDI)
-            : "d" (0x1F0), "c" (sector_size / sizeof(uint16_t)) // Inputs: Use port 0x1F0 as source (EDX), buffer size in words (ECX)
-            : "memory"              // Clobbered: Indicate memory has been modified
-        );
+    static inline unsigned short inw(unsigned short port) {
+        unsigned short value;
+        asm volatile("inw %1, %0" : "=a"(value) : "Nd"(port));
+        return value;
+    }
+
+
+    void diskDriver(char command, uint16_t buffer[], int startingSector, int numberOfSectors){
+        outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
+        outb(0x1F2, numberOfSectors); // Sector count port - # of sectors to read/write
+        outb(0x1F3, startingSector & 0xFF); // Sector number port / LBA low bits 0-7
+        outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
+        outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
+
+        if (command == 'r') {
+            outb(0x1F7, 0x20); // Command port - send read/write command        
+            print("[INFO] Reading ");
+            printInt(numberOfSectors);
+            print(" sectors, starting at sector ");
+            printInt(startingSector);
+            printChar('\n');
+
+            // make sure buffer is clear
+            for (uint32_t j = 0; j < 256 * numberOfSectors; j++){
+                buffer[j] = 0;
+            }
+                
+            for (uint8_t i = numberOfSectors; i > 0; i--) {
+                // Poll status port after reading 1 sector
+                while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
+                    ;
+
+                // Read 256 words from data port into memory
+                for (uint32_t j = 0; j < 256 * numberOfSectors; j++){
+                    buffer[j] = inw(0x1F0);
+                    //printInt(inw(0x1F0));
+                    //printChar(' ');
+                }
+
+                // 400ns delay - Read alternate status register
+                for (uint8_t k = 0; k < 4; k++)
+                    inb(0x3F6);
+            }
+
+        } else if (command == 'w') {
+            outb(0x1F7, 0x30); // Command port - send read/write command       
+            print("[INFO] Writing ");
+            printInt(numberOfSectors);
+            print(" sectors, starting at sector ");
+            printInt(startingSector);
+            printChar('\n');
+
+            for (uint8_t i = numberOfSectors; i > 0; i--) {
+                // Poll status port after reading 1 sector
+                while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
+                    ;
+
+                // Write 256 words from memory to data port
+                for (uint32_t j = 0; j < 256 * numberOfSectors; j++)
+                    outw(0x1F0, buffer[j]);
+
+                // 400ns delay - Read alternate status register
+                for (uint8_t k = 0; k < 4; k++)
+                    inb(0x3F6);
+            }
+
+            // Send cache flush command after write command is finished
+            outb(0x1F7, 0xE7);
+
+            // Wait until BSY bit is clear after cache flush
+            while (inb(0x1F7) & (1 << 7))
+                ;
+        }
     }
 
     // Read from disk
@@ -458,14 +527,14 @@
 
     // Function to print an integer to the screen
     void printInt(int data) {
-        char buffer[20];
+        char buffer[10];
         intToString(data, buffer, 10);
         print(buffer);
     }
 
     // Function to print an integer to the bottom of the screen
     void dPrintInt(int data) {
-        char buffer[20];
+        char buffer[10];
         intToString(data, buffer, 10);
         dPrint(buffer);
     }
@@ -487,7 +556,7 @@
     }
 
     // Function to check and execute commands
-    void checkCommand(char command[10][21]){        
+    void checkCommand(char command[10][21]){ 
         // help command
         if (cstrcmp(command[0], "help") == 0){
             for (int j = 0; j < NUMBER_OF_COMMANDS; j++) {
@@ -518,8 +587,8 @@
 
         // scroll command
         else if (cstrcmp(command[0], "scroll") == 0){
-            if (command[1][0] == 0) print("\n[ERROR] Number of lines not specified\n");
-            if (command[1][0] == 48) print("\n[ERROR] Number of lines cannot start with or be zero\n");
+            if (command[1][0] == 0) print("[ERROR] Number of lines not specified\n");
+            if (command[1][0] == 48) print("[ERROR] Number of lines cannot start with or be zero\n");
 
             int scrollValue = stringToInt(command[1]);
 
@@ -530,44 +599,86 @@
             ln--;
         }
 
-        // Read from disk
+        // write to disk command
+        else if (cstrcmp(command[0], "write") == 0){
+            int sectorSize = 256 * stringToInt(command[2]);
+
+            uint16_t dataBuffer[sectorSize];
+
+            for (uint32_t j = 0; j < sectorSize; j++){
+                dataBuffer[j] = j;
+            }
+
+            diskDriver('w', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
+
+            for (int i=0; i < sectorSize; i++){
+                printInt(dataBuffer[i]);
+                printChar(' ');
+            }
+        
+            print("\n[INFO] Done");
+        }
+
+        // read from disk command
         else if (cstrcmp(command[0], "read") == 0){
-            readFromDisk();
+            int sectorSize = 256 * stringToInt(command[2]);
+
+            uint16_t dataBuffer[sectorSize];
+
+            diskDriver('r', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
+
+            for (int i=0; i < sectorSize; i++){
+                printInt(dataBuffer[i]);
+                printChar(' ');
+            }
+        
+            print("\n[INFO] Done");
         }
 
         // XTRA
         else if (cstrcmp(command[0], "xtra") == 0){
             if (cstrcmp(command[1], "shutdown") == 0) {
-                print("\n[INFO] Shutting down...");
+                print("[INFO] Shutting down...");
 
                 return;
             }
             else if (cstrcmp(command[1], "write") == 0) {
-                print("\n[INFO] Writing to disk...");
+                print("[INFO] Writing to disk...");
                 
                 return;
             }
             else if (cstrcmp(command[1], "read") == 0) { 
-                print("\n[INFO] Reading from disk...");
-            
-                readFromDisk();
+                unsigned short dataBuffer[256];
+
+                print("[INFO] Reading from disk...");
+
+                readFromDisk(dataBuffer);
+
+                clearScreen();
+
+                for (int i=0; i < 256; i++){
+                    printInt(dataBuffer[i]);
+                    printChar(' ');
+                }
+
+                print("\n[INFO] Done");
 
                 return;
             }
             else if (cstrcmp(command[1], "enableint") == 0) {
-                print("\n[INFO] Enabling interrupts...");
+                print("[INFO] Enabling interrupts...");
                 
                 enableInterrupts();
                 
                 return;
             }
             else if (cstrcmp(command[1], "") == 0){
-                print("\n[ERROR] No XTRA command specified\n");
+                print("[ERROR] No XTRA command specified\n");
                 
                 return;
             }
             
-            print("\n[ERROR] Unknown XTRA command\n");
+            print("[ERROR] Unknown XTRA command\n");
         }
 
         else{
@@ -591,7 +702,7 @@
         ln += 3;
 
         char currentToken[21] = {'\0'};
-        char currentCommand[100] = {'\0'};
+        char currentCommand[21] = {'\0'};
         char command[10][21] = {};
         int token = 0;
         int canDelete = 0;
@@ -602,6 +713,10 @@
         print("=> ");
 
         while (1) {
+            print("     ");
+
+            cp -= 5;
+
             char key = readKey();
 
             int i = 0;
@@ -643,7 +758,7 @@
 
                 cstrncpy(command[token], currentToken, 20);
 
-                print("\n ");
+                printChar('\n');
 
                 checkCommand(command);
 
