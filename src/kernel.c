@@ -733,10 +733,6 @@
         print("=> ");
 
         while (1) {
-            print("     ");
-
-            cp -= 5;
-
             char key = readKey();
 
             int i = 0;
