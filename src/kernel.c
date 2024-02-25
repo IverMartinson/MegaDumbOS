@@ -143,11 +143,6 @@
 
     // Function to compare two strings
     int cstrcmp(const char* str1, const char* str2) {
-        while (*str1 && (*str1 == *str2)) {
-            str1++;
-            str2++;
-        }
-
         return *(unsigned char*)str1 - *(unsigned char*)str2;
     }
 
@@ -200,14 +195,7 @@
 
 
     void diskDriver(char command, uint16_t buffer[], int startingSector, int numberOfSectors){
-        outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
-        outb(0x1F2, numberOfSectors); // Sector count port - # of sectors to read/write
-        outb(0x1F3, startingSector & 0xFF); // Sector number port / LBA low bits 0-7
-        outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
-        outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
-
         if (command == 'r') {
-            outb(0x1F7, 0x20); // Command port - send read/write command        
             print("[INFO] Reading ");
             printInt(numberOfSectors);
             print(" sectors, starting at sector ");
@@ -219,23 +207,31 @@
                 buffer[j] = 0;
             }
                 
-            for (uint8_t i = numberOfSectors; i > 0; i--) {
+            for (uint8_t i=0; i < numberOfSectors; i++) {
+                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
+                outb(0x1F2, 1); // Sector count port - # of sectors to read/write
+                outb(0x1F3, startingSector + i & 0xFF); // Sector number port / LBA low bits 0-7
+                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
+                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
+                outb(0x1F7, 0x20); // Command port - send read/write command        
+                
                 if (i != numberOfSectors) printChar('\n');
+                
                 // Poll status port after reading 1 sector
                 while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
                     ;
 
                 // Read 256 words from data port into memory
-                for (uint32_t j = 0; j < 256 * numberOfSectors; j++){
-                    buffer[j] = inw(0x1F0);
-                    printInt(inw(0x1F0));
-                    printChar(' ');
+                for (uint32_t j = 0; j < 256; j++){
+                    buffer[j + 256 * i] = inw(0x1F0);
+                    //printInt(inw(0x1F0));
+                    //printChar(' ');
                 }
 
-                print("\n[INFO] Sector ");
-                printInt(i);
-                print(", error status ");
-                printInt(inb(0x1F1));
+                //print("\n[INFO] Sector ");
+                //printInt(i);
+                //print(", error status ");
+                //printInt(inb(0x1F1));
 
                 // 400ns delay - Read alternate status register
                 for (uint8_t k = 0; k < 4; k++)
@@ -243,22 +239,26 @@
             }
 
         } else if (command == 'w') {
-            outb(0x1F7, 0x30); // Command port - send read/write command       
             print("[INFO] Writing ");
             printInt(numberOfSectors);
             print(" sectors, starting at sector ");
             printInt(startingSector);
-            printChar('\n');
 
-            for (uint8_t i = numberOfSectors; i > 0; i--) {
-                if (i != numberOfSectors) printChar('\n');
+            for (uint8_t i=0; i < numberOfSectors; i++) {
+                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
+                outb(0x1F2, 1); // Sector count port - # of sectors to read/write
+                outb(0x1F3, startingSector + i & 0xFF); // Sector number port / LBA low bits 0-7
+                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
+                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
+                outb(0x1F7, 0x30); // Command port - send read/write command    
+
                 // Poll status port after reading 1 sector
                 while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
                     ;
 
                 // Write 256 words from memory to data port
-                for (uint32_t j = 0; j < 256 * numberOfSectors; j++)
-                    outw(0x1F0, buffer[j]);
+                for (uint32_t j = 0; j < 256; j++)
+                    outw(0x1F0, buffer[j + 256 * i]);
 
                 print("\n[INFO] Sector ");
                 printInt(i);
@@ -627,12 +627,12 @@
                 }
             }
 
-            diskDriver('w', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
-
             for (int i=0; i < sectorSize; i++){
                 //printInt(dataBuffer[i]);
                 //printChar(' ');
             }
+
+            diskDriver('w', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
         
             print("\n[INFO] Done");
         }
@@ -645,9 +645,11 @@
 
             diskDriver('r', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
 
+            printChar('\n');
+
             for (int i=0; i < sectorSize; i++){
-                //printInt(dataBuffer[i]);
-                //printChar(' ');
+                printInt(dataBuffer[i]);
+                printChar(' ');
             }
         
             print("\n[INFO] Done");
@@ -785,9 +787,9 @@
                 currentCommand[0] = '\0';
                 arrowKeyOffset = 0;
 
-                for (int i = 0; i <= token; i++) {
-                    command[i][0] = '\0';
-                }
+                for (int i = 0; i < 10; i++)
+                    for (int j = 0; j < 21; j++)
+                        command[i][j] = '\0';
 
                 canDelete = 0;
                 print("\n=> ");
