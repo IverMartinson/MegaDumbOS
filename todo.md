@@ -3,3 +3,6 @@
 - [ ] add GUI
 - [ ] add mouse control
 - [ ] fix bug where backspacing prints characters
+- [ ] add command history
+- [ ] make file system
+- [ ] make files

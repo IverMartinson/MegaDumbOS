@@ -1,24 +1,24 @@
-// Definitions ---------------------------------------------------------------------------------------------------------------------
+// definitions ---------------------------------------------------------------------------------------------------------------------
             
     #define NUMBER_OF_COMMANDS 8
 
-    // Timezone
+    // timezone
     int TIMEZONE = -5;
 
-    // List of available commands
+    // list of available commands
     char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "read (int(sector)) (int(# of sectors)) [reads from the disk]", "write (int(sector)) (int(# of sectors)) (int(value)) [writes to the disk]"};
 
-    // Define size_t as an alias for unsigned int
+    // define size_t as an alias for unsigned int
     typedef unsigned int size_t;
 
-    // Pointer to the video memory
+    // pointer to the video memory
     char *videoMemPtr = (char*)0xb8000;
 
-    // Current line and column positions
+    // current line and column positions
     int ln = 0;
     int cp = 0;
 
-    // Define uint32_t, uint16_t, and uint8_t
+    // define uint32_t, uint16_t, and uint8_t
     typedef unsigned int uint32_t;
     typedef unsigned short uint16_t;
     typedef unsigned char uint8_t;
@@ -29,14 +29,14 @@
     #define VGA_REG_CURSOR_HIGH 0x0E
     #define VGA_REG_CURSOR_LOW  0x0F
 
-    // Define the address for the ACPI shutdown register
+    // define the address for the ACPI shutdown register
     #define ACPI_SHUTDOWN_REGISTER 0x604
 
     // RTC registers
     #define RTC_PORT 0x70
     #define CMOS_PORT 0x71
 
-    // Datetime struct
+    // datetime struct
     struct datetime {
         int year;
         int month;
@@ -48,7 +48,7 @@
     
     struct datetime currentTime;
 
-    // Early definitions for printing variables
+    // early definitions for printing variables
     void printInt(int);
     void print(char*);
     void printChar(char);
@@ -177,7 +177,7 @@
 
 // System Functions ----------------------------------------------------------------------------------------------------------------
 
-    // Define the input/output functions for x86 architecture
+    // define the input/output functions
     static inline void outb(unsigned short port, unsigned char value) {
         asm volatile("outb %0, %1" : : "a"(value), "Nd"(port));
     }
@@ -199,6 +199,7 @@
     }
 
 
+    // ATA PIO 28-bit disk driver
     void diskDriver(char command, uint16_t buffer[], int startingSector, int numberOfSectors){
         if (command == 'r') {
             print("[INFO] Reading ");
@@ -213,20 +214,20 @@
             }
                 
             for (uint8_t i=0; i < numberOfSectors; i++) {
-                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
-                outb(0x1F2, 1); // Sector count port - # of sectors to read/write
-                outb(0x1F3, startingSector + i & 0xFF); // Sector number port / LBA low bits 0-7
-                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
-                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
-                outb(0x1F7, 0x20); // Command port - send read/write command        
+                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // head/drive # port - send head/drive #
+                outb(0x1F2, 1); // sector count port - # of sectors to read/write
+                outb(0x1F3, startingSector + i & 0xFF); // sector number port / LBA low bits 0-7
+                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // cylinder low port / LBA mid bits 8-15
+                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // cylinder high port / LBA high bits 16-23           
+                outb(0x1F7, 0x20); // command port - send read/write command        
                 
                 if (i != numberOfSectors) printChar('\n');
                 
-                // Poll status port after reading 1 sector
-                while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
+                // poll status port
+                while (inb(0x1F7) & (1 << 7)) // wait until BSY bit is clear
                     ;
 
-                // Read 256 words from data port into memory
+                // read 256 words from data port into memory
                 for (uint32_t j = 0; j < 256; j++){
                     buffer[j + 256 * i] = inw(0x1F0);
                     //printInt(inw(0x1F0));
@@ -250,18 +251,18 @@
             printInt(startingSector);
 
             for (uint8_t i=0; i < numberOfSectors; i++) {
-                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // Head/drive # port - send head/drive #
-                outb(0x1F2, 1); // Sector count port - # of sectors to read/write
-                outb(0x1F3, startingSector + i & 0xFF); // Sector number port / LBA low bits 0-7
-                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // Cylinder low port / LBA mid bits 8-15
-                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // Cylinder high port / LBA high bits 16-23           
-                outb(0x1F7, 0x30); // Command port - send read/write command    
+                outb(0x1F6, (0xE0 | ((startingSector >> 24) & 0x0F))); // head/drive # port - send head/drive #
+                outb(0x1F2, 1); // sector count port - # of sectors to read/write
+                outb(0x1F3, startingSector + i & 0xFF); // sector number port / LBA low bits 0-7
+                outb(0x1F4, ((startingSector >> 8) & 0xFF)); // cylinder low port / LBA mid bits 8-15
+                outb(0x1F5, ((startingSector >> 16) & 0xFF)); // cylinder high port / LBA high bits 16-23           
+                outb(0x1F7, 0x30); // command port - send read/write command    
 
-                // Poll status port after reading 1 sector
-                while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
+                // poll status port
+                while (inb(0x1F7) & (1 << 7)) // wait until BSY bit is clear
                     ;
 
-                // Write 256 words from memory to data port
+                // write 256 words from memory to data port
                 for (uint32_t j = 0; j < 256; j++)
                     outw(0x1F0, buffer[j + 256 * i]);
 
@@ -275,17 +276,14 @@
                     inb(0x3F6);
             }
 
-            // Send cache flush command after write command is finished
+            // send cache flush command after write command is finished
             outb(0x1F7, 0xE7);
 
-            // Wait until BSY bit is clear after cache flush
+            // wait until BSY bit is clear after cache flush
             while (inb(0x1F7) & (1 << 7))
                 ;
         }
     }
-
-    // Read from disk
-    extern void readFromDisk();
 
 
     // BCD to Decimal conversion
@@ -302,7 +300,7 @@
         dt->second = bcd_to_decimal(get_RTC_register(0x00));
         dt->minute = bcd_to_decimal(get_RTC_register(0x02));
 
-        // Read the hour register and adjust for time zone
+        // read the hour register and adjust for time zone
         int hour = bcd_to_decimal(get_RTC_register(0x04)) + TIMEZONE;
 
         if (hour >= 12) hour -= 12;
@@ -320,7 +318,7 @@
     char readKey() {
         unsigned char keyBuffer;
 
-        // Characters
+        // characters
         asm volatile (
             "waitForKey:\n"
             "call updateDebug\n"
@@ -344,9 +342,9 @@
             return keyMap[keyBuffer];
         }
 
-        // Special keys
+        // special keys
         if (keyBuffer == 0xE0) {
-            // Escape code for extended keys, read the next byte
+            // escape code for extended keys, read the next byte
             asm volatile (
             "waitForArrowKey:\n"
             "call updateDebug\n"
@@ -363,12 +361,12 @@
                 -1, '\0', '\0', -3, '\0', -4, '\0', '\0', -2, '\0', '\0', -5
             };
 
-            // Adjust index based on the escape code and handle out-of-range values
+            // adjust index based on the escape code and handle out-of-range values
             int index = keyBuffer - 72;
             if (index >= 0 && index < sizeof(keyMap) / sizeof(keyMap[0])) {
                 return keyMap[index];
             } else {
-                // Handle out-of-range values, return a default value or an error code
+                // handle out-of-range values, return a default value or an error code
                 return '\0';
             }
         }
@@ -377,11 +375,7 @@
     }
 
     // Shutdown computer
-    void shutdown(){
-        outb(ACPI_SHUTDOWN_REGISTER, 0x02);
-
-        asm volatile ("mov $0, %eax\n int $0x16");
-        asm volatile ("hlt");
+    void shutdown() {
     }
 
 // System Functions ----------------------------------------------------------------------------------------------------------------
