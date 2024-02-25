@@ -27,8 +27,8 @@
 
 ## Credits
 
-### Comments
-&emsp;Almost all comments have been written or rewritten by ChatGPT for clarity.
+### People
+&emsp;Thanks to [Queso Fuego](https://www.youtube.com/c/QuesoFuego) for the modified ATA PIO driver
 
 ### Resources
 &emsp; * [oswiki](https://wiki.osdev.org)  
