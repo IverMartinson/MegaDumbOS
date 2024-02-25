@@ -1,12 +1,12 @@
 // Definitions ---------------------------------------------------------------------------------------------------------------------
             
-    #define NUMBER_OF_COMMANDS 7
+    #define NUMBER_OF_COMMANDS 8
 
     // Timezone
     int TIMEZONE = -5;
 
     // List of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "read (int(sector)) (int(# of sectors)) [reads data from the disk]"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "read (int(sector)) (int(# of sectors)) [reads from the disk]", "write (int(sector)) (int(# of sectors)) (int(value)) [writes to the disk]"};
 
     // Define size_t as an alias for unsigned int
     typedef unsigned int size_t;
@@ -220,6 +220,7 @@
             }
                 
             for (uint8_t i = numberOfSectors; i > 0; i--) {
+                if (i != numberOfSectors) printChar('\n');
                 // Poll status port after reading 1 sector
                 while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
                     ;
@@ -227,9 +228,14 @@
                 // Read 256 words from data port into memory
                 for (uint32_t j = 0; j < 256 * numberOfSectors; j++){
                     buffer[j] = inw(0x1F0);
-                    //printInt(inw(0x1F0));
-                    //printChar(' ');
+                    printInt(inw(0x1F0));
+                    printChar(' ');
                 }
+
+                print("\n[INFO] Sector ");
+                printInt(i);
+                print(", error status ");
+                printInt(inb(0x1F1));
 
                 // 400ns delay - Read alternate status register
                 for (uint8_t k = 0; k < 4; k++)
@@ -245,6 +251,7 @@
             printChar('\n');
 
             for (uint8_t i = numberOfSectors; i > 0; i--) {
+                if (i != numberOfSectors) printChar('\n');
                 // Poll status port after reading 1 sector
                 while (inb(0x1F7) & (1 << 7)) // Wait until BSY bit is clear
                     ;
@@ -252,6 +259,11 @@
                 // Write 256 words from memory to data port
                 for (uint32_t j = 0; j < 256 * numberOfSectors; j++)
                     outw(0x1F0, buffer[j]);
+
+                print("\n[INFO] Sector ");
+                printInt(i);
+                print(", error status ");
+                printInt(inb(0x1F1));
 
                 // 400ns delay - Read alternate status register
                 for (uint8_t k = 0; k < 4; k++)
@@ -605,15 +617,21 @@
 
             uint16_t dataBuffer[sectorSize];
 
-            for (uint32_t j = 0; j < sectorSize; j++){
-                dataBuffer[j] = j;
+            if (cstrcmp(command[3], "") == 0){
+                for (uint32_t j = 0; j < sectorSize; j++){
+                    dataBuffer[j] = j;
+                }
+            } else {
+                for (uint32_t j = 0; j < sectorSize; j++){
+                    dataBuffer[j] = stringToInt(command[3]);
+                }
             }
 
             diskDriver('w', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
 
             for (int i=0; i < sectorSize; i++){
-                printInt(dataBuffer[i]);
-                printChar(' ');
+                //printInt(dataBuffer[i]);
+                //printChar(' ');
             }
         
             print("\n[INFO] Done");
@@ -628,8 +646,8 @@
             diskDriver('r', &dataBuffer[0], stringToInt(command[1]), stringToInt(command[2]));
 
             for (int i=0; i < sectorSize; i++){
-                printInt(dataBuffer[i]);
-                printChar(' ');
+                //printInt(dataBuffer[i]);
+                //printChar(' ');
             }
         
             print("\n[INFO] Done");
