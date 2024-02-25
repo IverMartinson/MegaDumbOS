@@ -1,4 +1,4 @@
-- [ ] finish ATA PIO driver
+- [x] finish ATA PIO driver
 - [ ] make a better/up-to-date disk driver
 - [ ] add GUI
 - [ ] add mouse control
