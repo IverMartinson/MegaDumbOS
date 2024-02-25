@@ -1,12 +1,12 @@
 // definitions ---------------------------------------------------------------------------------------------------------------------
             
-    #define NUMBER_OF_COMMANDS 8
+    #define NUMBER_OF_COMMANDS 9
 
     // timezone
-    int TIMEZONE = -5;
+    int TIMEZONE = 0;
 
     // list of available commands
-    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "read (int(sector)) (int(# of sectors)) [reads from the disk]", "write (int(sector)) (int(# of sectors)) (int(value)) [writes to the disk]"};
+    char* listOfCommands[NUMBER_OF_COMMANDS] = {"help [displays commands]", "shutdown [shuts down computer]", "echo (string(message)) [echos input]", "clear [clears screen]", "scroll (int(lines)) [scrolls screen]", "xtra (string(xtra command)) [runs xtra commands]", "timezone (int(UTC offset) [changes the timezone])", "read (int(sector)) (int(# of sectors)) [reads from the disk]", "write (int(sector)) (int(# of sectors)) (int(value)) [writes to the disk]"};
 
     // define size_t as an alias for unsigned int
     typedef unsigned int size_t;
@@ -67,6 +67,44 @@
 
 
 
+// Math Functions
+
+    // Absolute function
+    int abs(int num) {
+        return (num < 0) ? -num : num;
+    }
+
+
+    // Return length of int
+    int intLength(int num) {
+        int length = 0;
+
+        num = abs(num);
+
+        if (num >= 10) length++;
+        if (num >= 100) length++;
+        if (num >= 1000) length++;
+        if (num >= 10000) length++;
+        if (num >= 100000) length++;
+        if (num >= 1000000) length++;
+        if (num >= 10000000) length++;
+        if (num >= 100000000) length++;
+        if (num >= 1000000000) length++;
+        if (num >= 10000000000) length++;
+        if (num >= 100000000000) length++;
+        if (num >= 1000000000000) length++;
+        if (num >= 10000000000000) length++;
+        if (num >= 100000000000000) length++;
+        if (num >= 1000000000000000) length++;
+
+        return length;
+    }
+    
+
+// Math Functions
+
+
+
 // String Functions ----------------------------------------------------------------------------------------------------------------
 
     // Function to reverse a string
@@ -83,30 +121,35 @@
     }
 
     // Function to convert an integer to a string
-    char* intToString(int num, char* str, int base) {
+    char* intToString(int _num, char* str) {
         int i = 0;
         int isNegative = 0;
+        int num = _num;
 
+        // Handle 0 case
         if (num == 0) {
             str[i++] = '0';
             str[i] = '\0';
             return str;
         }
 
-        if (num < 0 && base != 10) {
+        // Handle negative numbers for non-decimal bases
+        if (num < 0) {
             isNegative = 1;
-            num = -num;
+            num = abs(num);
         }
 
+        // Convert integer to string
         while (num != 0) {
-            int rem = num % base;
-            str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-            num = num / base;
+            str[i++] = num % 10 + 48;
+            num /= 10;
         }
 
-        if (isNegative && base == 10)
+        // Add negative sign for decimal base
+        if (isNegative)
             str[i++] = '-';
 
+        // Add null terminator and reverse the string
         str[i] = '\0';
         reverse(str, i);
 
@@ -120,6 +163,8 @@
         int length = 0;
         int power = 1;
 
+        int negative = 1;
+
         while(str[length] != '\0') {
             length++;
             power *= 10;
@@ -127,18 +172,26 @@
 
         power /= 10;
 
-        for (int i = 0; i < length; i++){
+        int j = 0;
+
+        if (str[0] == 45){
+            negative = -1;
+            j = 1;
+            power /= 10;
+        }
+
+        for (int i=j; i < length; i++){
             if (str[i] < 48 || str[i] > 57) {
-                print("[ERROR] Number of lines is invalid (must be a positive integer)");
+                print("[ERROR] Invalid number");
             
-                return -1;
+                return 0;
             }
 
             final += (str[i] - 48) * power;
             power /= 10;
         }
 
-        return final;
+        return final * negative;
     }
 
     // Function to compare two strings
@@ -301,16 +354,26 @@
         dt->minute = bcd_to_decimal(get_RTC_register(0x02));
 
         // read the hour register and adjust for time zone
-        int hour = bcd_to_decimal(get_RTC_register(0x04)) + TIMEZONE;
+        int hour = bcd_to_decimal(get_RTC_register(0x04));
 
-        if (hour >= 12) hour -= 12;
-        if (hour <= 0) hour = 12 + hour;
+        int dayOffset = 0;
+
+        hour += TIMEZONE;
+
+        if (hour >= 24) {
+            hour -= 24;
+            dayOffset++;
+        }
+
+        if (hour < 0) {
+            hour += 24;
+            dayOffset--;
+        }
 
         dt->hour = hour;
-
-        dt->day = bcd_to_decimal(get_RTC_register(0x07));
+        dt->day = bcd_to_decimal(get_RTC_register(0x07)) + dayOffset;
         dt->month = bcd_to_decimal(get_RTC_register(0x08));
-        dt->year = bcd_to_decimal(get_RTC_register(0x09));
+        dt->year = bcd_to_decimal(get_RTC_register(0x09)); 
     }
 
 
@@ -400,20 +463,15 @@
 
         getCurrentTime(&currentTime);
 
-        int timeOffset = 0;
+        int timeOffset = intLength(currentTime.hour) + intLength(currentTime.minute) + intLength(currentTime.second);
 
-        if (currentTime.hour >= 10) timeOffset++;
-        if (currentTime.minute >= 10) timeOffset++;
-        if (currentTime.second >= 10) timeOffset++;
+        if (currentTime.hour < 0) timeOffset++;
 
-        int dateOffset = 0;
+        int dateOffset = intLength(currentTime.month) + intLength(currentTime.day);
 
-        if (currentTime.month >= 10) dateOffset++;
-        if (currentTime.day >= 10) dateOffset++;
+        cp = 40 - timeOffset - dateOffset;
 
-        cp = 57 - timeOffset - dateOffset;
-
-        dPrint("   ");
+        dPrint("                   ");
         dPrintInt(currentTime.hour);
         dPrintChar(':');
         dPrintInt(currentTime.minute);
@@ -538,15 +596,15 @@
 
     // Function to print an integer to the screen
     void printInt(int data) {
-        char buffer[10];
-        intToString(data, buffer, 10);
+        char buffer[40];
+        intToString(data, buffer);
         print(buffer);
     }
 
     // Function to print an integer to the bottom of the screen
     void dPrintInt(int data) {
-        char buffer[10];
-        intToString(data, buffer, 10);
+        char buffer[40];
+        intToString(data, buffer);
         dPrint(buffer);
     }
 
@@ -654,51 +712,71 @@
             print("\n[INFO] Done");
         }
 
-        // XTRA
-        else if (cstrcmp(command[0], "xtra") == 0){
-            if (cstrcmp(command[1], "shutdown") == 0) {
-                print("[INFO] Shutting down...");
-
-                return;
-            }
-            else if (cstrcmp(command[1], "write") == 0) {
-                print("[INFO] Writing to disk...");
+        else if (cstrcmp(command[0], "timezone") == 0){
+            if (cstrcmp(command[1], "") == 0){
+                print("[ERROR] Timezone not specified");
                 
                 return;
             }
-            else if (cstrcmp(command[1], "read") == 0) { 
-                unsigned short dataBuffer[256];
 
-                print("[INFO] Reading from disk...");
+            int offset = stringToInt(command[1]);
+            
+            if (offset < -11 || offset > 12) {
+                print("[ERROR] UTC offset can only be between -11 and 12"); 
 
-                readFromDisk(dataBuffer);
-
-                clearScreen();
-
-                for (int i=0; i < 256; i++){
-                    printInt(dataBuffer[i]);
-                    printChar(' ');
-                }
-
-                print("\n[INFO] Done");
-
-                return;
-            }
-            else if (cstrcmp(command[1], "enableint") == 0) {
-                print("[INFO] Enabling interrupts...");
-                
-                enableInterrupts();
-                
-                return;
-            }
-            else if (cstrcmp(command[1], "") == 0){
-                print("[ERROR] No XTRA command specified\n");
-                
                 return;
             }
             
-            print("[ERROR] Unknown XTRA command\n");
+            TIMEZONE = offset;
+
+            return;
         }
+
+        // XTRA
+        // else if (cstrcmp(command[0], "xtra") == 0){
+        //     if (cstrcmp(command[1], "shutdown") == 0) {
+        //         print("[INFO] Shutting down...");
+
+        //         return;
+        //     }
+        //     else if (cstrcmp(command[1], "write") == 0) {
+        //         print("[INFO] Writing to disk...");
+                
+        //         return;
+        //     }
+        //     else if (cstrcmp(command[1], "read") == 0) { 
+        //         unsigned short dataBuffer[256];
+
+        //         print("[INFO] Reading from disk...");
+
+        //         readFromDisk(dataBuffer);
+
+        //         clearScreen();
+
+        //         for (int i=0; i < 256; i++){
+        //             printInt(dataBuffer[i]);
+        //             printChar(' ');
+        //         }
+
+        //         print("\n[INFO] Done");
+
+        //         return;
+        //     }
+        //     else if (cstrcmp(command[1], "enableint") == 0) {
+        //         print("[INFO] Enabling interrupts...");
+                
+        //         enableInterrupts();
+                
+        //         return;
+        //     }
+        //     else if (cstrcmp(command[1], "") == 0){
+        //         print("[ERROR] No XTRA command specified\n");
+                
+        //         return;
+        //     }
+            
+        //     print("[ERROR] Unknown XTRA command\n");
+        // }
 
         else{
             print("[ERROR] Command '");
